@@ -6,7 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="8b29c0d1-9523-4a9b-983b-299f07672a0a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_threads.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crack_zip_with_multiple_processes.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/newcodetest.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zzz.zip" beforeDir="false" afterPath="$PROJECT_DIR$/zzz.zip" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -53,6 +55,7 @@
     "Python.crack_zip_with_multiple_files.executor": "Run",
     "Python.crack_zip_with_multiple_processes (1).executor": "Run",
     "Python.crack_zip_with_multiple_processes.executor": "Run",
+    "Python.crack_zip_with_multiple_processes.py.executor": "Run",
     "Python.creatListPass.executor": "Run",
     "Python.create_encrypted_zip.executor": "Run",
     "Python.main.executor": "Run",
@@ -123,8 +126,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.newcodetest" />
         <item itemvalue="Python.crack_zip_with_multiple_processes" />
+        <item itemvalue="Python.newcodetest" />
       </list>
     </recent_temporary>
   </component>
@@ -155,6 +158,10 @@
       <workItem from="1733780137436" duration="4096000" />
       <workItem from="1733814112201" duration="9362000" />
       <workItem from="1734530673623" duration="6816000" />
+      <workItem from="1734541183937" duration="898000" />
+      <workItem from="1734572792621" duration="2177000" />
+      <workItem from="1734575006495" duration="1000" />
+      <workItem from="1734575104931" duration="375000" />
     </task>
     <servers />
   </component>
@@ -169,11 +176,12 @@
     <SUITE FILE_PATH="coverage/Code$test_threads.coverage" NAME="test_threads Coverage Results" MODIFIED="1733759531087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Code$test.coverage" NAME="test Coverage Results" MODIFIED="1733718360104" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
     <SUITE FILE_PATH="coverage/Code$crack_zip_with_multiple_files.coverage" NAME="crack_zip_with_multiple_files Coverage Results" MODIFIED="1733809298620" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py$newcodetest.coverage" NAME="newcodetest Coverage Results" MODIFIED="1734537446636" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py$newcodetest.coverage" NAME="newcodetest Coverage Results" MODIFIED="1734574939011" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Code$crack_zip_with_multiple_processes__1_.coverage" NAME="crack_zip_with_multiple_processes (1) Coverage Results" MODIFIED="1733822056819" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Downloads" />
-    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py$crack_zip_with_multiple_processes.coverage" NAME="crack_zip_with_multiple_processes Coverage Results" MODIFIED="1734531741540" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py$crack_zip_with_multiple_processes.coverage" NAME="crack_zip_with_multiple_processes Coverage Results" MODIFIED="1734575401124" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Code$create_encrypted_zip.coverage" NAME="create_encrypted_zip Coverage Results" MODIFIED="1733822498259" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py$create_encrypted_zip.coverage" NAME="create_encrypted_zip Coverage Results" MODIFIED="1734535919488" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py$create_encrypted_zip.coverage" NAME="create_encrypted_zip Coverage Results" MODIFIED="1734541316163" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py$crack_zip_with_multiple_processes_py.coverage" NAME="crack_zip_with_multiple_processes.py Coverage Results" MODIFIED="1734575406275" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Code$creatListPass.coverage" NAME="creatListPass Coverage Results" MODIFIED="1733674524070" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

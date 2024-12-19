@@ -1,0 +1,150 @@
+2024-12-19 00:00:42,840 - [MainProcess] INFO: Mật khẩu đã được giải mã thành công: 999
+2024-12-19 00:03:45,279 - [MainProcess] INFO: Mật khẩu đã được giải mã thành công: 9999
+2024-12-19 00:14:19,198 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 1, 'current_index': 1000}
+2024-12-19 00:14:19,199 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 0}
+2024-12-19 00:14:20,511 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 1000}
+2024-12-19 00:14:20,512 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 3, 'current_index': 0}
+2024-12-19 00:14:21,820 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 3, 'current_index': 1000}
+2024-12-19 00:14:21,821 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 4, 'current_index': 0}
+2024-12-19 00:14:37,228 - [MainProcess] INFO: Mật khẩu đã được giải mã thành công: 9999
+2024-12-19 08:47:26,151 - [MainProcess] INFO: Mật khẩu đã được giải mã thành công: 9999
+2024-12-19 08:48:09,484 - [MainProcess] INFO: Mật khẩu đã được giải mã thành công: 9999
+2024-12-19 08:51:56,064 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 4, 'current_index': 1000}
+2024-12-19 08:51:56,065 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 5, 'current_index': 0}
+2024-12-19 08:51:56,146 - [MainProcess] INFO: Không tìm thấy mật khẩu sau khi thử tất cả tổ hợp.
+2024-12-19 08:56:35,741 - [MainProcess] INFO: Không tìm thấy mật khẩu sau khi thử tất cả tổ hợp.
+2024-12-19 08:56:35,741 - [MainProcess] INFO: File tiến độ đã được xóa.
+2024-12-19 08:56:50,024 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 1, 'current_index': 1000}
+2024-12-19 08:56:50,025 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 0}
+2024-12-19 08:56:51,347 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 1000}
+2024-12-19 08:56:51,348 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 3, 'current_index': 0}
+2024-12-19 08:56:52,659 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 3, 'current_index': 1000}
+2024-12-19 08:56:52,659 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 4, 'current_index': 0}
+2024-12-19 08:57:07,809 - [MainProcess] INFO: Mật khẩu đã được giải mã thành công: 9999
+2024-12-19 08:57:07,810 - [MainProcess] INFO: File tiến độ đã được xóa.
+2024-12-19 08:58:47,068 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 1, 'current_index': 1000}
+2024-12-19 08:58:47,069 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 0}
+2024-12-19 08:58:48,373 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 1000}
+2024-12-19 08:58:48,374 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 3, 'current_index': 0}
+2024-12-19 08:58:49,684 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 3, 'current_index': 1000}
+2024-12-19 08:58:49,685 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 4, 'current_index': 0}
+2024-12-19 08:59:05,592 - [MainProcess] INFO: Mật khẩu đã được giải mã thành công: 9999
+2024-12-19 08:59:05,593 - [MainProcess] INFO: File tiến độ đã được xóa.
+2024-12-19 09:05:16,380 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 0}
+2024-12-19 09:05:17,692 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 3, 'current_index': 0}
+2024-12-19 09:05:18,985 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 4, 'current_index': 0}
+2024-12-19 09:05:34,009 - [MainProcess] INFO: Mật khẩu đã được giải mã thành công: 9999
+2024-12-19 09:05:34,009 - [MainProcess] INFO: File tiến độ đã được xóa.
+2024-12-19 09:07:33,932 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 0}
+2024-12-19 09:07:35,247 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 3, 'current_index': 0}
+2024-12-19 09:07:36,557 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 4, 'current_index': 0}
+2024-12-19 09:07:51,526 - [MainProcess] INFO: Mật khẩu đã được giải mã thành công: 9999
+2024-12-19 09:07:51,527 - [MainProcess] INFO: File tiến độ đã được xóa.
+2024-12-19 09:08:08,414 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 0}
+2024-12-19 09:08:09,754 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 3, 'current_index': 0}
+2024-12-19 09:08:11,089 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 4, 'current_index': 0}
+2024-12-19 09:08:13,772 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 5, 'current_index': 0}
+2024-12-19 09:08:13,842 - [MainProcess] INFO: Không tìm thấy mật khẩu sau khi thử tất cả tổ hợp.
+2024-12-19 09:08:13,842 - [MainProcess] INFO: File tiến độ đã được xóa.
+2024-12-19 09:08:34,551 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 0}
+2024-12-19 09:08:34,552 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 3, 'current_index': 0}
+2024-12-19 09:08:34,552 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 4, 'current_index': 0}
+2024-12-19 09:08:34,553 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 5, 'current_index': 0}
+2024-12-19 09:08:34,841 - [MainProcess] INFO: Không tìm thấy mật khẩu sau khi thử tất cả tổ hợp.
+2024-12-19 09:08:34,841 - [MainProcess] INFO: File tiến độ đã được xóa.
+2024-12-19 09:09:04,424 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 0}
+2024-12-19 09:09:07,082 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 3, 'current_index': 0}
+2024-12-19 09:09:07,289 - [SpawnPoolWorker-4] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:09:09,399 - [SpawnPoolWorker-3] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:09:11,612 - [SpawnPoolWorker-13] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:09:13,725 - [SpawnPoolWorker-12] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:09:16,056 - [SpawnPoolWorker-11] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:09:18,282 - [SpawnPoolWorker-10] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:09:20,523 - [SpawnPoolWorker-9] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:09:23,420 - [SpawnPoolWorker-8] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:09:25,751 - [SpawnPoolWorker-7] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:09:28,189 - [SpawnPoolWorker-6] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:09:30,778 - [SpawnPoolWorker-5] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:10:08,681 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 4, 'current_index': 0}
+2024-12-19 09:10:08,682 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 5, 'current_index': 0}
+2024-12-19 09:10:08,962 - [MainProcess] INFO: Không tìm thấy mật khẩu sau khi thử tất cả tổ hợp.
+2024-12-19 09:10:08,962 - [MainProcess] INFO: File tiến độ đã được xóa.
+2024-12-19 09:10:24,857 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 0}
+2024-12-19 09:10:27,566 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 3, 'current_index': 0}
+2024-12-19 09:10:27,776 - [SpawnPoolWorker-4] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:10:29,944 - [SpawnPoolWorker-2] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:10:32,244 - [SpawnPoolWorker-13] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:10:34,544 - [SpawnPoolWorker-12] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:10:37,130 - [SpawnPoolWorker-11] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:10:39,380 - [SpawnPoolWorker-10] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:10:41,501 - [SpawnPoolWorker-9] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:10:43,766 - [SpawnPoolWorker-8] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:10:45,924 - [SpawnPoolWorker-7] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:10:48,269 - [SpawnPoolWorker-6] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:10:50,322 - [SpawnPoolWorker-5] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:14:01,028 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 4, 'current_index': 0}
+2024-12-19 09:15:38,366 - [SpawnPoolWorker-8] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid distance too far back
+2024-12-19 09:16:09,465 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 1, 'current_index': 1000, 'zip_file': 'zzz.zip', 'max_password_length': 4, 'character_set': 'abcdefghijklmnopqrstuvwxyz0123456789'}
+2024-12-19 09:16:09,466 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 0, 'zip_file': 'zzz.zip', 'max_password_length': 4, 'character_set': 'abcdefghijklmnopqrstuvwxyz0123456789'}
+2024-12-19 09:16:12,130 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 1000, 'zip_file': 'zzz.zip', 'max_password_length': 4, 'character_set': 'abcdefghijklmnopqrstuvwxyz0123456789'}
+2024-12-19 09:16:12,130 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 2000, 'zip_file': 'zzz.zip', 'max_password_length': 4, 'character_set': 'abcdefghijklmnopqrstuvwxyz0123456789'}
+2024-12-19 09:16:12,130 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 3, 'current_index': 0, 'zip_file': 'zzz.zip', 'max_password_length': 4, 'character_set': 'abcdefghijklmnopqrstuvwxyz0123456789'}
+2024-12-19 09:16:12,326 - [SpawnPoolWorker-4] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:16:14,498 - [SpawnPoolWorker-2] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:16:16,704 - [SpawnPoolWorker-13] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:16:18,838 - [SpawnPoolWorker-12] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:16:21,248 - [SpawnPoolWorker-11] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:16:23,560 - [SpawnPoolWorker-10] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:16:25,793 - [SpawnPoolWorker-9] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:16:28,426 - [SpawnPoolWorker-8] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:16:30,787 - [SpawnPoolWorker-7] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:16:32,917 - [SpawnPoolWorker-6] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:16:35,089 - [SpawnPoolWorker-5] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:16:54,360 - [SpawnPoolWorker-12] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:16:56,551 - [SpawnPoolWorker-11] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:16:58,762 - [SpawnPoolWorker-10] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:17:00,965 - [SpawnPoolWorker-9] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:17:03,067 - [SpawnPoolWorker-8] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:17:05,245 - [SpawnPoolWorker-7] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:17:07,404 - [SpawnPoolWorker-6] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:17:09,559 - [SpawnPoolWorker-5] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:17:11,708 - [SpawnPoolWorker-4] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:17:14,135 - [SpawnPoolWorker-3] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:17:16,345 - [SpawnPoolWorker-2] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:17:46,081 - [SpawnPoolWorker-12] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:17:48,186 - [SpawnPoolWorker-11] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:18:02,765 - [MainProcess] INFO: File tiến độ đã được xóa.
+2024-12-19 09:18:04,547 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 1, 'current_index': 1000, 'zip_file': 'zzz.zip', 'max_password_length': 4, 'character_set': 'abcdefghijklmnopqrstuvwxyz0123456789'}
+2024-12-19 09:18:04,547 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 0, 'zip_file': 'zzz.zip', 'max_password_length': 4, 'character_set': 'abcdefghijklmnopqrstuvwxyz0123456789'}
+2024-12-19 09:18:07,268 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 1000, 'zip_file': 'zzz.zip', 'max_password_length': 4, 'character_set': 'abcdefghijklmnopqrstuvwxyz0123456789'}
+2024-12-19 09:18:07,268 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 2000, 'zip_file': 'zzz.zip', 'max_password_length': 4, 'character_set': 'abcdefghijklmnopqrstuvwxyz0123456789'}
+2024-12-19 09:18:07,269 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 3, 'current_index': 0, 'zip_file': 'zzz.zip', 'max_password_length': 4, 'character_set': 'abcdefghijklmnopqrstuvwxyz0123456789'}
+2024-12-19 09:18:07,469 - [SpawnPoolWorker-4] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:21:20,304 - [SpawnPoolWorker-12] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:21:22,469 - [SpawnPoolWorker-11] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:21:24,664 - [SpawnPoolWorker-10] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:21:26,822 - [SpawnPoolWorker-9] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:21:29,052 - [SpawnPoolWorker-8] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:21:31,290 - [SpawnPoolWorker-7] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:21:33,453 - [SpawnPoolWorker-6] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:21:35,666 - [SpawnPoolWorker-5] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:21:37,927 - [SpawnPoolWorker-4] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:21:40,256 - [SpawnPoolWorker-3] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:21:42,677 - [SpawnPoolWorker-2] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:22:10,460 - [MainProcess] INFO: File tiến độ đã được xóa.
+2024-12-19 09:22:12,258 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 1, 'current_index': 1000, 'zip_file': 'zzz.zip', 'max_password_length': 4, 'character_set': 'abcdefghijklmnopqrstuvwxyz0123456789'}
+2024-12-19 09:22:12,259 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 0, 'zip_file': 'zzz.zip', 'max_password_length': 4, 'character_set': 'abcdefghijklmnopqrstuvwxyz0123456789'}
+2024-12-19 09:22:14,934 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 1000, 'zip_file': 'zzz.zip', 'max_password_length': 4, 'character_set': 'abcdefghijklmnopqrstuvwxyz0123456789'}
+2024-12-19 09:22:14,934 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 2, 'current_index': 2000, 'zip_file': 'zzz.zip', 'max_password_length': 4, 'character_set': 'abcdefghijklmnopqrstuvwxyz0123456789'}
+2024-12-19 09:22:14,935 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 3, 'current_index': 0, 'zip_file': 'zzz.zip', 'max_password_length': 4, 'character_set': 'abcdefghijklmnopqrstuvwxyz0123456789'}
+2024-12-19 09:22:15,141 - [SpawnPoolWorker-4] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:22:33,628 - [SpawnPoolWorker-12] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:22:35,767 - [SpawnPoolWorker-11] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:22:37,904 - [SpawnPoolWorker-10] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:22:40,050 - [SpawnPoolWorker-9] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:22:42,249 - [SpawnPoolWorker-8] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:22:44,429 - [SpawnPoolWorker-7] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:22:46,691 - [SpawnPoolWorker-6] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:22:48,815 - [SpawnPoolWorker-5] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:22:51,091 - [SpawnPoolWorker-4] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
+2024-12-19 09:22:53,208 - [SpawnPoolWorker-2] ERROR: Lỗi không mong muốn: Error -3 while decompressing data: invalid stored block lengths
