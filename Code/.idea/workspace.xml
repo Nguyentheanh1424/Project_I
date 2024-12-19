@@ -5,10 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8b29c0d1-9523-4a9b-983b-299f07672a0a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crack_zip_with_multiple_processes.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/newcodetest.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crack_zip_with_multiple_processes.py.py" beforeDir="false" afterPath="$PROJECT_DIR$/crack_zip_with_multiple_processes.py.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/progress.json" beforeDir="false" afterPath="$PROJECT_DIR$/progress.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/zip_crack.log" beforeDir="false" afterPath="$PROJECT_DIR$/zip_crack.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/zzz.zip" beforeDir="false" afterPath="$PROJECT_DIR$/zzz.zip" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -50,33 +52,36 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.crack_zip_with_multiple_files.executor": "Run",
-    "Python.crack_zip_with_multiple_processes (1).executor": "Run",
-    "Python.crack_zip_with_multiple_processes.executor": "Run",
-    "Python.crack_zip_with_multiple_processes.py.executor": "Run",
-    "Python.creatListPass.executor": "Run",
-    "Python.create_encrypted_zip.executor": "Run",
-    "Python.main.executor": "Run",
-    "Python.newcodetest.executor": "Run",
-    "Python.test.executor": "Run",
-    "Python.test_gerate_pwd_from_index.executor": "Run",
-    "Python.test_gerate_pwdfile.executor": "Run",
-    "Python.test_threads.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.Check.executor&quot;: &quot;Run&quot;,
+    &quot;Python.check.executor&quot;: &quot;Run&quot;,
+    &quot;Python.crack_zip_with_multiple_files.executor&quot;: &quot;Run&quot;,
+    &quot;Python.crack_zip_with_multiple_processes (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.crack_zip_with_multiple_processes.executor&quot;: &quot;Run&quot;,
+    &quot;Python.crack_zip_with_multiple_processes.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python.creatListPass.executor&quot;: &quot;Run&quot;,
+    &quot;Python.create_encrypted_zip.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.newcodetest.executor&quot;: &quot;Run&quot;,
+    &quot;Python.sitecustomize.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_gerate_pwd_from_index.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_gerate_pwdfile.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_threads.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="crack_zip_with_multiple_processes" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Code" />
@@ -162,6 +167,10 @@
       <workItem from="1734572792621" duration="2177000" />
       <workItem from="1734575006495" duration="1000" />
       <workItem from="1734575104931" duration="375000" />
+      <workItem from="1734577022683" duration="1679000" />
+      <workItem from="1734586208015" duration="1112000" />
+      <workItem from="1734587339631" duration="766000" />
+      <workItem from="1734588120328" duration="77000" />
     </task>
     <servers />
   </component>
@@ -172,16 +181,22 @@
     <SUITE FILE_PATH="coverage/Code$test_gerate_pwd_from_index.coverage" NAME="test_gerate_pwd_from_index Coverage Results" MODIFIED="1733755783337" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Code$test_gerate_pwdfile.coverage" NAME="test_gerate_pwdfile Coverage Results" MODIFIED="1733719659875" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Code$crack_zip_with_multiple_processes.coverage" NAME="crack_zip_with_multiple_processes Coverage Results" MODIFIED="1733823501676" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py_py$create_encrypted_zip.coverage" NAME="create_encrypted_zip Coverage Results" MODIFIED="1734588131249" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Code$main.coverage" NAME="main Coverage Results" MODIFIED="1733677665839" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Code$test_threads.coverage" NAME="test_threads Coverage Results" MODIFIED="1733759531087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py_py$crack_zip_with_multiple_processes_py.coverage" NAME="crack_zip_with_multiple_processes.py Coverage Results" MODIFIED="1734587681743" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Code$test.coverage" NAME="test Coverage Results" MODIFIED="1733718360104" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
     <SUITE FILE_PATH="coverage/Code$crack_zip_with_multiple_files.coverage" NAME="crack_zip_with_multiple_files Coverage Results" MODIFIED="1733809298620" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py$newcodetest.coverage" NAME="newcodetest Coverage Results" MODIFIED="1734574939011" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py$newcodetest.coverage" NAME="newcodetest Coverage Results" MODIFIED="1734577145148" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Code$crack_zip_with_multiple_processes__1_.coverage" NAME="crack_zip_with_multiple_processes (1) Coverage Results" MODIFIED="1733822056819" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Downloads" />
-    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py$crack_zip_with_multiple_processes.coverage" NAME="crack_zip_with_multiple_processes Coverage Results" MODIFIED="1734575401124" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py$crack_zip_with_multiple_processes.coverage" NAME="crack_zip_with_multiple_processes Coverage Results" MODIFIED="1734577060680" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py_py$sitecustomize.coverage" NAME="sitecustomize Coverage Results" MODIFIED="1734587678545" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv/Lib/site-packages" />
     <SUITE FILE_PATH="coverage/Code$create_encrypted_zip.coverage" NAME="create_encrypted_zip Coverage Results" MODIFIED="1733822498259" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py$create_encrypted_zip.coverage" NAME="create_encrypted_zip Coverage Results" MODIFIED="1734541316163" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py$crack_zip_with_multiple_processes_py.coverage" NAME="crack_zip_with_multiple_processes.py Coverage Results" MODIFIED="1734575406275" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py$create_encrypted_zip.coverage" NAME="create_encrypted_zip Coverage Results" MODIFIED="1734577392767" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py$crack_zip_with_multiple_processes_py.coverage" NAME="crack_zip_with_multiple_processes.py Coverage Results" MODIFIED="1734578318931" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py_py$check.coverage" NAME="check Coverage Results" MODIFIED="1734587346137" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Code$creatListPass.coverage" NAME="creatListPass Coverage Results" MODIFIED="1733674524070" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py_py$crack_zip_with_multiple_processes.coverage" NAME="crack_zip_with_multiple_processes Coverage Results" MODIFIED="1734588123410" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/crack_zip_with_multiple_processes_py_py$Check.coverage" NAME="Check Coverage Results" MODIFIED="1734588136223" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv" />
   </component>
 </project>
