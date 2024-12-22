@@ -172,7 +172,6 @@ def main_gui():
     root = Tk()
     root.title("Giải Mã ZIP")
     root.geometry("300x450")
-    root.resizable(False, False)
 
     # Các biến
     zip_file_var = StringVar()
@@ -195,25 +194,14 @@ def main_gui():
     Button(root, text="Chọn tệp ZIP", command=lambda: zip_file_var.set(filedialog.askopenfilename(filetypes=[("ZIP Files", "*.zip")]))).pack(anchor="w", padx=10)
 
     Label(root, text="Độ dài mật khẩu tối đa:").pack(anchor="w", padx=10, pady=5)
-    Entry(root, textvariable=max_length_var, width=50).pack(anchor="w", padx=10)
+    Entry(root, textvariable=max_length_var).pack(anchor="w", padx=10)
 
     Label(root, text="Bộ ký tự:").pack(anchor="w", padx=10, pady=5)
-
-    # Sử dụng Frame để chứa checkbox
-    char_set_frame = ttk.Frame(root)
-    char_set_frame.pack(anchor="w", padx=50)
-
-    # Thêm checkbox vào lưới
-    row, col = 0, 0
-    for idx, (key, (chars, var)) in enumerate(char_set_options.items()):
-        Checkbutton(char_set_frame, text=key, variable=var).grid(row=row, column=col, sticky="w", padx=10, pady=2)
-        col += 1
-        if col > 1:  # Sau mỗi 2 checkbox, chuyển sang hàng mới
-            col = 0
-            row += 1
+    for key, (chars, var) in char_set_options.items():
+        Checkbutton(root, text=key, variable=var).pack(anchor="w", padx=20)
 
     Label(root, text="Số tiến trình:").pack(anchor="w", padx=10, pady=5)
-    Entry(root, textvariable=process_var, width=50).pack(anchor="w", padx=10)
+    Entry(root, textvariable=process_var).pack(anchor="w", padx=10)
 
     # Nút bắt đầu
     status_label = Label(root, text="Chưa bắt đầu.")

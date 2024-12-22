@@ -210,3 +210,4 @@
 2024-12-19 13:21:07,190 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 4, 'current_index': 52000, 'zip_file': 'D:/Work/University/2024.1/ProjectI_NguyenTheAnh_20225163/Project_I/PythonProject/zzz.zip', 'max_password_length': 4, 'character_set': 'abcdefghijklmnopqrstuvwxyz'}
 2024-12-19 13:22:40,568 - [MainProcess] INFO: Tiến độ đã được lưu: {'current_length': 4, 'current_index': 55000, 'zip_file': 'D:/Work/University/2024.1/ProjectI_NguyenTheAnh_20225163/Project_I/PythonProject/zzz.zip', 'max_password_length': 4, 'character_set': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}
 2024-12-19 13:28:30,641 - [MainProcess] INFO: File tiến độ đã được xóa.
+2024-12-19 14:19:25,559 - [MainProcess] ERROR: Tệp ZIP không tồn tại: 
