@@ -1,14 +1,14 @@
+import concurrent.futures
 import json
-import logging
 import multiprocessing
 import os
+import queue
 import sys
 import threading
-from tkinter import Tk, Label, Entry, Button, StringVar, filedialog, IntVar, ttk, messagebox, BooleanVar, Checkbutton
-import pyzipper
-import concurrent.futures
-import queue
 import time
+from tkinter import Tk, Label, Entry, Button, StringVar, filedialog, IntVar, ttk, messagebox, BooleanVar, Checkbutton
+
+import pyzipper
 
 # Đặt mã hóa UTF-8 để hỗ trợ tiếng Việt
 sys.stdout.reconfigure(encoding='utf-8')
@@ -27,7 +27,7 @@ def _save_progress(progress, settings, current_length, current_index):
     try:
         with open(PROGRESS_FILE, "w", encoding="utf-8") as f:
             json.dump(progress, f, indent=4)
-    except Exception as e:
+    except Exception:
         # messagebox.showerror("Lỗi", "Không lưu được tiến độ.")
         pass
 
@@ -93,7 +93,7 @@ def _crack_worker(zip_file, password, stop_flag, result_queue):
         result_queue.put(password)
     except (RuntimeError, pyzipper.BadZipFile):
         return
-    except Exception as e:
+    except Exception:
         pass
 
 
@@ -178,9 +178,9 @@ def main_gui():
     root.geometry("300x450")
     root.resizable(False, False)
 
-    zip_file_var = StringVar()
-    max_length_var = IntVar(value=1)
-    process_var = IntVar(value=multiprocessing.cpu_count())
+    zip_file_var = StringVar(value="Nguyễn Thế Anh dz")
+    max_length_var = IntVar(value= 142004)
+    process_var = IntVar(value=20225163)
     progress_var = IntVar(value=0)
 
     char_set_options = {
@@ -198,9 +198,9 @@ def main_gui():
     zip_file_entry.pack(anchor="w", padx=10)
     widgets.append(zip_file_entry)
 
-    zip_file_button = Button(root, text="Chọn tệp ZIP",
-                             command=lambda: zip_file_var.set(
-                                 filedialog.askopenfilename(filetypes=[("ZIP Files", "*.zip")])))
+    zip_file_button = Button(root,
+                             text="Chọn tệp ZIP",
+                             command=lambda: zip_file_var.set(filedialog.askopenfilename(filetypes=[("ZIP Files", "*.zip")])))
     zip_file_button.pack(anchor="w", padx=10)
     widgets.append(zip_file_button)
 
@@ -229,13 +229,14 @@ def main_gui():
     widgets.extend(char_set_checkbuttons)
 
     # Số tiến trình
-    Label(root, text="Số tiến trình:").pack(anchor="w", padx=10, pady=5)
+    number_of_processes = multiprocessing.cpu_count()
+    Label(root, text=f"Số tiến trình: (1-{number_of_processes})").pack(anchor="w", padx=10, pady=5)
     process_entry = Entry(root, textvariable=process_var, width=50)
     process_entry.pack(anchor="w", padx=10)
     widgets.append(process_entry)
 
     # Trạng thái
-    status_label = Label(root, text="Chưa bắt đầu.")
+    status_label = Label(root, text="Nguyễn Thế Anh dz")
     status_label.pack(pady=10)
 
     # Hàm bật/tắt widget
@@ -260,6 +261,10 @@ def main_gui():
         final_char_set = "".join(chars for chars, var in char_set_options.values() if var.get())
         if not final_char_set:
             messagebox.showerror("Lỗi", "Bạn phải chọn ít nhất một bộ ký tự.")
+            return
+
+        if process_var.get() > number_of_processes:
+            messagebox.showerror("Lỗi", "Số tiến trình sử dụng không hợp lệ.")
             return
 
         settings = {
