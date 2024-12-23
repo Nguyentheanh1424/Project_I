@@ -17,8 +17,8 @@ class ProgressManager:
         try:
             with open(self.progress_file, "w", encoding="utf-8") as f:
                 json.dump(progress, f, indent=4)
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Error occurred: {e}")
 
     def load_progress(self):
         if os.path.exists(self.progress_file):
