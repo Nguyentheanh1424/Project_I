@@ -1,7 +1,7 @@
 {
-    "current_length": 3,
-    "current_index": 50000,
+    "current_length": 4,
+    "current_index": 411282,
     "zip_file": "D:/Work/University/2024.1/ProjectI_NguyenTheAnh_20225163/Project_I/PythonProject/test.zip",
     "max_password_length": 5,
-    "character_set": "abcdefghijklmnopqrstuvwxyz0123456789"
+    "character_set": "abcdefghijklmnopqrstuvwxyz"
 }
