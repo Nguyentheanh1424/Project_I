@@ -19,7 +19,7 @@ def _crack_worker(zip_file, password, stop_flag, result_queue):
         return
 
 
-class ZipCracker:
+class BruteForce:
     def __init__(self, settings, progress_manager):
         self.settings = settings
         self.progress_manager = progress_manager
@@ -67,7 +67,7 @@ class ZipCracker:
             status_label.config(text=f"Đang thử mật khẩu độ dài {length}...")
 
             # Số chunk tối thiểu mỗi process nên xử lý
-            min_chunks_per_process = 10
+            min_chunks_per_process = 100
 
             # Giới hạn chunk size để tránh tiêu tốn quá nhiều bộ nhớ
             max_chunk_size = 10000
