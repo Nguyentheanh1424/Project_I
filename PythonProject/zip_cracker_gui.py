@@ -4,9 +4,8 @@ import multiprocessing
 import threading
 import os
 
-from brute_force import BruteForce
+from cracker import BruteForce, DictionaryAttacker
 from config import PROGRESS_FILE
-from dictionary_attacker import DictionaryAttacker
 from progress_manager import ProgressManager
 
 
@@ -28,7 +27,7 @@ class ZipCrackerGUI:
             "Lowercase": ("abcdefghijklmnopqrstuvwxyz", BooleanVar(value=True)),
             "Uppercase": ("ABCDEFGHIJKLMNOPQRSTUVWXYZ", BooleanVar(value=False)),
             "Digits": ("0123456789", BooleanVar(value=True)),
-            "Special": ("!@#$%^&*()-_=+[]{}|;:',.<>?/`~", BooleanVar(value=False)),
+            "Special": ("!@#$%^&*()-_=+[]{}|;:',.<>?/~", BooleanVar(value=False)),
             "Custom": ("", BooleanVar(value=False)),
         }
 
@@ -39,7 +38,7 @@ class ZipCrackerGUI:
     def setup_window(self):
         # Cấu hình cửa sổ chính với kích thước cố định
         self.root.title("Giải Mã ZIP")
-        self.root.geometry("300x580")
+        self.root.geometry("300x600")
         self.root.resizable(False, False)
 
     def create_widgets(self):
@@ -112,15 +111,25 @@ class ZipCrackerGUI:
     def _toggle_attack_mode(self):
         # Điều chỉnh giao diện cho chế độ Dictionary Attack
         if self.attack_mode.get() == "Dictionary Attack":
+            self.root.geometry("300x450")
             if not self.dict_frame.winfo_ismapped():
                 self.dict_frame.pack(after=self.password_length_frame, anchor="w", padx=10, pady=5)
+
+            # Ẩn giao diện liên quan đến Brute Force
+            if self.password_length_label.winfo_ismapped():
+                self.password_length_label.pack_forget()
+            if self.password_length_frame.winfo_ismapped():
+                self.password_length_frame.pack_forget()
             if self.charset_frame.winfo_ismapped():
                 self.charset_frame.pack_forget()
+            if self.custom_charset_frame.winfo_ismapped():
                 self.custom_charset_frame.pack_forget()
+            if self.charset_label.winfo_ismapped():
                 self.charset_label.pack_forget()
         else:
             # Điều chỉnh giao diện cho chế độ Brute Force
             self._clear_widgets()
+            self.root.geometry("300x600")
             self.create_widgets()
 
     def _select_wordlist(self):
@@ -129,12 +138,14 @@ class ZipCrackerGUI:
             self.wordlist_path.set(filename)
 
     def _create_password_length_section(self):
-        Label(self.root, text="Độ dài mật khẩu tối đa:").pack(anchor="w", padx=10, pady=5)
-        max_length_entry = Entry(self.root, textvariable=self.max_length_var, width=50)
-        max_length_entry.pack(anchor="w", padx=10)
-        self.widgets.append(max_length_entry)
+        self.password_length_label = Label(self.root, text="Độ dài mật khẩu tối đa:")
+        self.password_length_label.pack(anchor="w", padx=10, pady=5)
 
-        self.password_length_frame = max_length_entry
+        self.password_length_frame = Entry(self.root, textvariable=self.max_length_var, width=50)
+        self.password_length_frame.pack(anchor="w", padx=10)
+
+        self.widgets.append(self.password_length_label)
+        self.widgets.append(self.password_length_frame)
 
     def _create_charset_section(self):
         self.charset_label = Label(self.root, text="Bộ ký tự:")
@@ -274,51 +285,76 @@ class ZipCrackerGUI:
             self._enable_widgets()
 
     def _start_brute_force(self, settings):
+        """Khởi động tấn công brute force."""
         progress_manager = ProgressManager(PROGRESS_FILE)
         brute_force = BruteForce(settings, progress_manager)
 
+        self._start_attack(
+            attack_method=brute_force.start_cracking,
+            progress_manager=progress_manager,
+            settings=settings,
+            validate_progress=True
+        )
+
+    def _start_dictionary_attack(self):
+        """Khởi động tấn công dictionary attack."""
+        if not os.path.isfile(self.wordlist_path.get()):
+            messagebox.showerror("Lỗi", "Vui lòng chọn File Wordlist hợp lệ")
+            return
+
+        progress_manager = ProgressManager(PROGRESS_FILE)
+        dictionary_attacker = DictionaryAttacker(
+            {
+                "zip_file": self.zip_file_var.get(),
+                "process_var": self.process_var.get()
+            },
+            progress_manager
+        )
+
+        self._start_attack(
+            attack_method=dictionary_attacker.start_cracking,
+            progress_manager=progress_manager,
+            wordlist_path=self.wordlist_path.get()
+        )
+
+    def _start_attack(self, attack_method, progress_manager, settings=None, wordlist_path=None, validate_progress=False):
+        """
+        Hàm dùng chung để khởi động các kiểu tấn công.
+
+        Args:
+            attack_method: Hàm thực thi tấn công từ lớp tấn công (brute force/dictionary).
+            progress_manager: Đối tượng quản lý tiến trình.
+            settings: (dict) Cấu hình tấn công (chỉ dùng cho brute force).
+            wordlist_path: (str) Đường dẫn wordlist (chỉ dùng cho dictionary attack).
+            validate_progress: (bool) Có xác nhận tiến trình trước đó không.
+        """
         def cracking_thread():
             try:
-                brute_force.start_cracking(
-                    self.progress_var,
-                    progress_manager.validate_progress(settings),
-                    self.status_label
-                )
+                if settings and validate_progress:
+                    attack_method(
+                        self.progress_var,
+                        progress_manager.validate_progress(settings),
+                        self.status_label
+                    )
+                elif wordlist_path:
+                    attack_method(
+                        wordlist_path,
+                        self.progress_var,
+                        self.status_label
+                    )
             except Exception as e:
-                messagebox.showerror("Lỗi", f"Lỗi trong quá trình thám mã: {e}")
+                messagebox.showerror("Lỗi", f"Lỗi trong quá trình tấn công: {e}")
             finally:
                 self._enable_widgets()
 
         threading.Thread(target=cracking_thread, daemon=True).start()
 
-    def _start_dictionary_attack(self):
-        if not os.path.isfile(self.wordlist_path.get()):
-            messagebox.showerror("Lỗi", "Vui lòng chọn File Wordlist hợp lệ")
-            return
-
-        attacker = DictionaryAttacker(
-            self.zip_file_var.get(),
-            ProgressManager(PROGRESS_FILE)
-        )
-
-        def attack_thread():
-            try:
-                attacker.attack(
-                    self.wordlist_path.get(),
-                    self.progress_var,
-                    self.status_label
-                )
-            except Exception as e:
-                messagebox.showerror("Lỗi", f"Lỗi trong quá trình Dictionary Attack: {e}")
-            finally:
-                self._enable_widgets()
-
-        threading.Thread(target=attack_thread, daemon=True).start()
-
     def update_progress(self):
+        """Cập nhật tiến trình thanh tiến trình."""
         self.progress_bar["value"] = self.progress_var.get()
         if self.progress_var.get() < 100:
             self.root.after(50, self.update_progress)
+
 
     def run(self):
         self.update_progress()
