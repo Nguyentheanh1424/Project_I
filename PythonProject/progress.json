@@ -1,0 +1,8 @@
+{
+    "mode": "Dictionary Attack",
+    "zip_file": "D:/Work/University/2024.1/ProjectI_NguyenTheAnh_20225163/Project_I/PythonProject/test.zip",
+    "max_password_length": null,
+    "character_set": null,
+    "current_index": 13018,
+    "wordlist_path": "D:/Work/University/2024.1/ProjectI_NguyenTheAnh_20225163/Project_I/PythonProject/password_dictionary.txt"
+}

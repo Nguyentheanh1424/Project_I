@@ -30,7 +30,6 @@ class CrackerBase:
         )
 
     def run_cracking(self, zip_file, passwords):
-        """Chạy cracking với một danh sách mật khẩu."""
         result_queue = multiprocessing.Manager().Queue()
         futures = [
             self.executor.submit(_crack_worker, zip_file, password,
@@ -41,6 +40,16 @@ class CrackerBase:
             if not result_queue.empty():
                 return result_queue.get()
         return None
+
+    def _update_progress(self, progress_var):
+        """Cập nhật thanh tiến trình."""
+        while True:
+            try:
+                new_progress = self.progress_queue.get(timeout=1)
+                progress_var.set(new_progress)
+            except Empty:
+                if self.stop_flag.is_set():
+                    break
 
     def _handle_success(self, result, start_time, status_label, progress_var):
         elapsed_time = time.time() - start_time
@@ -74,29 +83,32 @@ class BruteForce(CrackerBase):
 
         start_time = time.time()
 
-        def update_progress():
-            while True:
-                try:
-                    new_progress = self.progress_queue.get(timeout=1)
-                    progress_var.set(new_progress)
-                except Empty:
-                    if self.stop_flag.is_set():
-                        break
+        threading.Thread(target=self._update_progress, args=(progress_var,), daemon=True).start()
 
-        threading.Thread(target=update_progress, daemon=True).start()
+        progress_var.set(0)
 
         chars_set = list(self.settings["character_set"])
 
+        status_label.config(text=f"Đang thử mật khẩu...")
+
+        total_combinations = len(chars_set) ** self.settings["max_password_length"]
+
+        current_combinations = 0
+
+        if total_combinations <= 1000: chunk_size = total_combinations
+        else:
+            chunk_size = (total_combinations // self.settings["process_var"]) // 10
+            if chunk_size >= 10000: chunk_size = 10000
+
         for length in range(progress["current_length"], self.settings["max_password_length"] + 1):
-            total_combinations = len(self.settings["character_set"]) ** length
-            status_label.config(text=f"Đang thử mật khẩu độ dài {length}...")
+            combinations = len(chars_set) ** length
 
-            chunk_size = max(total_combinations // self.settings["process_var"], 1000)
-
-            for start in range(progress["current_index"], total_combinations, chunk_size):
+            for start in range(progress["current_index"], combinations, chunk_size):
+                end = min(start + chunk_size, combinations)
+                current_chunk_size = end - start
                 passwords = list(
                     self.password_generator.generate_password_chunk_numpy(
-                        chars_set, length, start, chunk_size, total_combinations
+                        chars_set, length, start, end
                     )
                 )
 
@@ -108,12 +120,17 @@ class BruteForce(CrackerBase):
                     self._handle_success(result, start_time, status_label, progress_var)
                     return
 
-                self.progress_manager.save_progress(progress, self.settings, length, start + chunk_size)
-                self.progress_queue.put((start + chunk_size) / total_combinations * 100)
+                self.progress_manager.save_progress(
+                    "Brute Force",
+                    self.settings,
+                    current_length=length,
+                    current_index=start + chunk_size
+                )
+                current_combinations += current_chunk_size
+                self.progress_queue.put(current_combinations / total_combinations * 100)
 
             progress["current_index"] = 0
             progress["current_length"] += 1
-            progress_var.set(0)
 
         self._handle_failure(start_time, status_label, progress_var)
         self.progress_queue.put(0)
@@ -125,41 +142,65 @@ class DictionaryAttacker(CrackerBase):
 
     def start_cracking(self, wordlist_path, progress_var, status_label):
         start_time = time.time()
+        status_label.config(text=f"Đang thử mật khẩu...")
 
-        def update_progress():
-            while True:
-                try:
-                    new_progress = self.progress_queue.get(timeout=1)
-                    progress_var.set(new_progress)
-                except Empty:
-                    if self.stop_flag.is_set():
-                        break
+        # Bắt đầu luồng cập nhật tiến trình
+        threading.Thread(target=self._update_progress, args=(progress_var,), daemon=True).start()
 
-        threading.Thread(target=update_progress, daemon=True).start()
+        progress_var.set(0)
 
         try:
             with open(wordlist_path, "r", encoding="utf-8") as f:
-                passwords = f.readlines()
+                total_passwords = sum(1 for _ in f)  # Tổng số mật khẩu trong wordlist
+                f.seek(0)
 
-            total_passwords = len(passwords)
-            chunk_size = max(total_passwords // self.settings["process_var"], 1000)
+                # Khôi phục tiến trình nếu có
+                saved_progress = self.progress_manager.load_progress()
+                if saved_progress:
+                    current_index = saved_progress.get("current_index", 0)
+                    f.seek(current_index)  # Đọc tiếp từ vị trí lưu trước
+                else:
+                    current_index = 0
 
-            for start in range(0, total_passwords, chunk_size):
-                chunk = passwords[start:start + chunk_size]
-                chunk = [pwd.strip() for pwd in chunk]
+                chunk_size = max(total_passwords // self.settings["process_var"] // 10, 1000)
 
-                result = self.run_cracking(
-                    self.settings["zip_file"], chunk
-                )
+                for chunk in self._read_wordlist_in_chunks(f, chunk_size):
+                    result = self.run_cracking(self.settings["zip_file"], chunk)
 
-                if result:
-                    self._handle_success(result, start_time, status_label, progress_var)
-                    return
+                    if result:
+                        self._handle_success(result, start_time, status_label, progress_var)
+                        return
 
-                self.progress_queue.put((start + chunk_size) / total_passwords * 100)
+                    # Cập nhật vị trí hiện tại
+                    current_index += sum(len(line) + 1 for line in chunk)  # Cộng số byte của mỗi dòng
 
+                    # Lưu tiến trình
+                    self.progress_manager.save_progress(
+                        mode="Dictionary Attack",
+                        settings=self.settings,
+                        current_index=current_index,
+                        wordlist_path=wordlist_path
+                    )
+
+                    # Cập nhật thanh tiến trình
+                    progress_var.set(min(progress_var.get() + len(chunk) / total_passwords * 100, 100))
+
+        except FileNotFoundError:
+            status_label.config(text="Wordlist không tồn tại.")
         except Exception as e:
             status_label.config(text=f"Lỗi khi đọc wordlist: {e}")
 
         self._handle_failure(start_time, status_label, progress_var)
         self.progress_queue.put(0)
+
+    @staticmethod
+    def _read_wordlist_in_chunks(file_obj, chunk_size):
+        """Đọc tệp wordlist theo từng chunk để giảm sử dụng bộ nhớ."""
+        chunk = []
+        for line in file_obj:
+            chunk.append(line.strip())
+            if len(chunk) >= chunk_size:
+                yield chunk
+                chunk = []
+        if chunk:
+            yield chunk

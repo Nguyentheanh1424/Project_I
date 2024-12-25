@@ -79,19 +79,23 @@ class ZipCrackerGUI:
         modes_frame = ttk.Frame(self.root)
         modes_frame.pack(anchor="w", padx=50)
 
-        Radiobutton(
+        brute_force_rb = Radiobutton(
             modes_frame, text="Brute Force",
             variable=self.attack_mode,
             value="Brute Force",
             command=self._toggle_attack_mode
-        ).pack(anchor="w")
+        )
+        brute_force_rb.pack(anchor="w")
+        self.widgets.append(brute_force_rb)
 
-        Radiobutton(
+        dictionary_rb = Radiobutton(
             modes_frame, text="Dictionary Attack",
             variable=self.attack_mode,
             value="Dictionary Attack",
             command=self._toggle_attack_mode
-        ).pack(anchor="w")
+        )
+        dictionary_rb.pack(anchor="w")
+        self.widgets.append(dictionary_rb)
 
         # Thêm frame cho Dictionary Attack
         self.dict_frame = ttk.Frame(self.root)
@@ -180,7 +184,7 @@ class ZipCrackerGUI:
         self.widgets.append(process_entry)
 
     def _create_status_section(self):
-        self.status_label = Label(self.root, text="Đang chờ hoạt động")
+        self.status_label = Label(self.root, text="Trạng thái: Sẵn sàng")
         self.status_label.pack(pady=10)
 
         self.start_button = Button(self.root, text="Thám mã", command=self._validate_and_start)
@@ -198,42 +202,65 @@ class ZipCrackerGUI:
     def _enable_widgets(self):
         for widget in self.widgets:
             widget.config(state="normal")
+        if self.dict_frame.winfo_ismapped():
+            for child in self.dict_frame.winfo_children():
+                child.config(state="normal")
 
     def _disable_widgets(self):
+        """Vô hiệu hóa tất cả các widget."""
+        # Vô hiệu hóa các widget trong danh sách self.widgets
         for widget in self.widgets:
-            widget.config(state="disable")
+            try:
+                if widget.winfo_exists():  # Kiểm tra widget có tồn tại
+                    widget.config(state="disable")
+            except Exception as e:
+                print(f"Lỗi khi vô hiệu hóa widget: {e}")
+
+        # Kiểm tra và vô hiệu hóa các con của dict_frame
+        if self.dict_frame.winfo_exists() and self.dict_frame.winfo_ismapped():
+            for child in self.dict_frame.winfo_children():
+                try:
+                    child.config(state="disable")
+                except Exception as e:
+                    print(f"Lỗi khi vô hiệu hóa widget con: {e}")
 
     def _validate_settings(self):
         if not os.path.isfile(self.zip_file_var.get()):
             messagebox.showerror("Lỗi", "Tệp ZIP không tồn tại.")
             return False
 
-        try:
-            max_length = self.max_length_var.get()
-            if max_length <= 0:
-                raise ValueError("Độ dài mật khẩu phải lớn hơn 0.")
-        except ValueError as e:
-            messagebox.showerror("Lỗi", str(e))
-            return False
-        except TclError:
-            messagebox.showerror("Lỗi", "Vui lòng nhập độ dài mật khẩu hợp lệ.")
-            return False
+        if self.attack_mode.get() == "Brute Force":
+            try:
+                max_length = self.max_length_var.get()
+                if max_length <= 0:
+                    raise ValueError("Độ dài mật khẩu phải lớn hơn 0.")
+            except ValueError as e:
+                messagebox.showerror("Lỗi", str(e))
+                return False
+            except TclError:
+                messagebox.showerror("Lỗi", "Vui lòng nhập độ dài mật khẩu hợp lệ.")
+                return False
 
-        charset = ""
-        for key, (chars, var) in self.char_set_options.items():
-            if var.get():
-                if key == "Custom":
-                    custom_chars = self.custom_charset_var.get()
-                    if not custom_chars and self.char_set_options["Custom"][1].get():
-                        messagebox.showerror("Lỗi", "Vui lòng nhập ký tự tùy chỉnh hoặc bỏ chọn tùy chọn Custom.")
-                        return False
-                    charset += custom_chars
-                else:
-                    charset += chars
+        if self.attack_mode.get() == "Dictionary Attack":
+            if not os.path.isfile(self.wordlist_path.get()):
+                messagebox.showerror("Lỗi", "Vui lòng chọn File Wordlist hợp lệ.")
+                return False
 
-        if not charset:
-            messagebox.showerror("Lỗi", "Bạn phải chọn ít nhất một bộ ký tự.")
-            return False
+        if self.attack_mode.get() == "Brute Force":
+            charset = ""
+            for key, (chars, var) in self.char_set_options.items():
+                if var.get():
+                    if key == "Custom":
+                        custom_chars = self.custom_charset_var.get()
+                        if not custom_chars and self.char_set_options["Custom"][1].get():
+                            messagebox.showerror("Lỗi", "Vui lòng nhập ký tự tùy chỉnh hoặc bỏ chọn tùy chọn Custom.")
+                            return False
+                        charset += custom_chars
+                    else:
+                        charset += chars
+            if not charset:
+                messagebox.showerror("Lỗi", "Bạn phải chọn ít nhất một bộ ký tự.")
+                return False
 
         try:
             process_count = self.process_var.get()
@@ -245,37 +272,55 @@ class ZipCrackerGUI:
             messagebox.showerror("Lỗi", str(e))
             return False
         except TclError:
-            messagebox.showerror("Lỗi", "Vui lòng nhập độ dài mật khẩu hợp lệ.")
+            messagebox.showerror("Lỗi", "Vui lòng nhập số tiến trình hợp lệ.")
             return False
 
         return True
 
     def _get_settings(self):
         charset = ""
-        for key, (chars, var) in self.char_set_options.items():
-            if var.get():
-                if key == "Custom":
-                    custom_chars = self.custom_charset_var.get()
-                    if custom_chars:
-                        charset += custom_chars
-                else:
-                    charset += chars
+        if self.attack_mode.get() == "Brute Force":
+            for key, (chars, var) in self.char_set_options.items():
+                if var.get():
+                    if key == "Custom":
+                        custom_chars = self.custom_charset_var.get()
+                        if custom_chars:
+                            charset += custom_chars
+                    else:
+                        charset += chars
 
         return {
             "zip_file": self.zip_file_var.get(),
-            "max_password_length": self.max_length_var.get(),
-            "character_set": charset,
+            "max_password_length": self.max_length_var.get() if self.attack_mode.get() == "Brute Force" else None,
+            "character_set": charset if self.attack_mode.get() == "Brute Force" else None,
             "process_var": self.process_var.get()
         }
 
     def _validate_and_start(self):
+        """Kiểm tra và bắt đầu tiến trình tấn công."""
         if not self._validate_settings():
             return
 
         settings = self._get_settings()
         self._disable_widgets()
 
+        progress_manager = ProgressManager(PROGRESS_FILE)
+
         try:
+            # Kiểm tra tiến trình đã lưu
+            progress = progress_manager.validate_progress(
+                mode=self.attack_mode.get(),
+                settings=settings,
+                wordlist_path=self.wordlist_path.get() if self.attack_mode.get() == "Dictionary Attack" else None,
+            )
+
+            # Xác nhận nếu có tiến trình cũ
+            if progress:
+                if messagebox.askyesno("Tiến trình đã lưu", "Bạn có muốn tiếp tục từ lần dừng trước không?"):
+                    self._resume_attack(progress, settings)
+                    return
+
+            # Bắt đầu tấn công mới nếu không tiếp tục
             if self.attack_mode.get() == "Brute Force":
                 self._start_brute_force(settings)
             elif self.attack_mode.get() == "Dictionary Attack":
@@ -284,8 +329,15 @@ class ZipCrackerGUI:
             messagebox.showerror("Lỗi", f"Không xác định: {e}")
             self._enable_widgets()
 
-    def _start_brute_force(self, settings):
-        """Khởi động tấn công brute force."""
+    def _resume_attack(self, progress, settings):
+        """Tiếp tục tiến trình từ trạng thái đã lưu."""
+        if self.attack_mode.get() == "Brute Force":
+            self._start_brute_force(settings, validate_progress=True)
+        elif self.attack_mode.get() == "Dictionary Attack":
+            self._start_dictionary_attack(validate_progress=True)
+
+    def _start_brute_force(self, settings, validate_progress=False):
+        """Khởi động hoặc tiếp tục tấn công brute force."""
         progress_manager = ProgressManager(PROGRESS_FILE)
         brute_force = BruteForce(settings, progress_manager)
 
@@ -293,11 +345,11 @@ class ZipCrackerGUI:
             attack_method=brute_force.start_cracking,
             progress_manager=progress_manager,
             settings=settings,
-            validate_progress=True
+            validate_progress=validate_progress
         )
 
-    def _start_dictionary_attack(self):
-        """Khởi động tấn công dictionary attack."""
+    def _start_dictionary_attack(self, validate_progress=False):
+        """Khởi động hoặc tiếp tục tấn công dictionary attack."""
         if not os.path.isfile(self.wordlist_path.get()):
             messagebox.showerror("Lỗi", "Vui lòng chọn File Wordlist hợp lệ")
             return
@@ -314,7 +366,8 @@ class ZipCrackerGUI:
         self._start_attack(
             attack_method=dictionary_attacker.start_cracking,
             progress_manager=progress_manager,
-            wordlist_path=self.wordlist_path.get()
+            wordlist_path=self.wordlist_path.get(),
+            validate_progress=validate_progress
         )
 
     def _start_attack(self, attack_method, progress_manager, settings=None, wordlist_path=None, validate_progress=False):
@@ -330,16 +383,23 @@ class ZipCrackerGUI:
         """
         def cracking_thread():
             try:
-                if settings and validate_progress:
+                # Bắt đầu tấn công
+                if validate_progress and settings:
                     attack_method(
                         self.progress_var,
-                        progress_manager.validate_progress(settings),
+                        progress_manager.load_progress(),
                         self.status_label
                     )
                 elif wordlist_path:
                     attack_method(
                         wordlist_path,
                         self.progress_var,
+                        self.status_label
+                    )
+                else:
+                    attack_method(
+                        self.progress_var,
+                        False,
                         self.status_label
                     )
             except Exception as e:

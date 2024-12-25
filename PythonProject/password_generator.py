@@ -2,10 +2,9 @@ import numpy as np
 
 class PasswordGenerator:
     @staticmethod
-    def generate_password_chunk_numpy(chars, length, start, chunk_size, total_combinations):
+    def generate_password_chunk_numpy(chars, length, start, end):
         chars = np.array(chars)
         num_chars = len(chars)
-        end = min(start + chunk_size, total_combinations)
         indices = np.arange(start, end)
         passwords = np.empty((end - start, length), dtype="<U1")
         for i in range(length):
