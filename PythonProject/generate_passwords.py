@@ -21,11 +21,9 @@ def generate_passwords(output_file, min_length=6, max_length=8, charset="abcdefg
         print(f"Lỗi khi tạo từ điển: {e}")
 
 
-# Cấu hình
-output_file = "password_dictionary.txt"  # Tên tệp từ điển mật khẩu
+output_file = "password_dictionary.txt"
 min_length = 1  # Độ dài mật khẩu tối thiểu
 max_length = 3  # Độ dài mật khẩu tối đa
-charset = "abcdefghijklmnopqrstuvwxyz0123456789"  # Bộ ký tự để tạo mật khẩu
+charset = "abcdefghijklmnopqrstuvwxyz0123456789"
 
-# Gọi hàm
 generate_passwords(output_file, min_length, max_length, charset)

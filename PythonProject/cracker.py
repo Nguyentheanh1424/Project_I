@@ -195,12 +195,29 @@ class DictionaryAttacker(CrackerBase):
 
     @staticmethod
     def _read_wordlist_in_chunks(file_obj, chunk_size):
-        """Đọc tệp wordlist theo từng chunk để giảm sử dụng bộ nhớ."""
+        """
+        Đọc tệp wordlist theo từng chunk để giảm sử dụng bộ nhớ.
+
+        Args:
+            file_obj (file object): Tệp wordlist đã được mở để đọc chunk mật khẩu.
+            chunk_size (int): Số dòng (mật khẩu) tối đa trong mỗi chunk.
+
+        Yields:
+            list: Một chunk các dòng từ wordlist, với số dòng tối đa là `chunk_size`.
+        """
+        # Khởi tạo một chunk rỗng để lưu các dòng từ wordlist
         chunk = []
+
+        # Đọc từng dòng trong tệp wordlist
         for line in file_obj:
+            # Loại bỏ khoảng trắng và thêm dòng vào chunk
             chunk.append(line.strip())
+
+            # Khi chunk đạt đến kích thước tối đa (`chunk_size`)
             if len(chunk) >= chunk_size:
-                yield chunk
-                chunk = []
+                yield chunk  # Trả về chunk hiện tại
+                chunk = []  # Reset chunk để bắt đầu nhóm mới
+
+        # Nếu còn sót lại các dòng chưa được trả về (chunk chưa đầy)
         if chunk:
-            yield chunk
+            yield chunk  # Trả về chunk cuối cùng
