@@ -22,7 +22,7 @@ def generate_passwords(output_file, min_length=6, max_length=8, charset="abcdefg
 
 
 output_file = "password_dictionary.txt"
-min_length = 1  # Độ dài mật khẩu tối thiểu
+min_length = 3  # Độ dài mật khẩu tối thiểu
 max_length = 3  # Độ dài mật khẩu tối đa
 charset = "abcdefghijklmnopqrstuvwxyz0123456789"
 

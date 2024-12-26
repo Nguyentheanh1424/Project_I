@@ -307,6 +307,7 @@ class ZipCrackerGUI:
         progress_manager = ProgressManager(PROGRESS_FILE)
 
         try:
+
             # Kiểm tra tiến trình đã lưu
             progress = progress_manager.validate_progress(
                 mode=self.attack_mode.get(),
@@ -314,13 +315,7 @@ class ZipCrackerGUI:
                 wordlist_path=self.wordlist_path.get() if self.attack_mode.get() == "Dictionary Attack" else None,
             )
 
-            # Xác nhận nếu có tiến trình cũ
-            if progress:
-                if messagebox.askyesno("Tiến trình đã lưu", "Bạn có muốn tiếp tục từ lần dừng trước không?"):
-                    self._resume_attack(progress, settings)
-                    return
-
-            # Bắt đầu tấn công mới nếu không tiếp tục
+            # Bắt đầu tấn công
             if self.attack_mode.get() == "Brute Force":
                 self._start_brute_force(settings)
             elif self.attack_mode.get() == "Dictionary Attack":
@@ -328,13 +323,6 @@ class ZipCrackerGUI:
         except Exception as e:
             messagebox.showerror("Lỗi", f"Không xác định: {e}")
             self._enable_widgets()
-
-    def _resume_attack(self, progress, settings):
-        """Tiếp tục tiến trình từ trạng thái đã lưu."""
-        if self.attack_mode.get() == "Brute Force":
-            self._start_brute_force(settings, validate_progress=True)
-        elif self.attack_mode.get() == "Dictionary Attack":
-            self._start_dictionary_attack(validate_progress=True)
 
     def _start_brute_force(self, settings, validate_progress=False):
         """Khởi động hoặc tiếp tục tấn công brute force."""
@@ -394,6 +382,7 @@ class ZipCrackerGUI:
                     attack_method(
                         wordlist_path,
                         self.progress_var,
+                        validate_progress,
                         self.status_label
                     )
                 else:

@@ -42,7 +42,6 @@ class CrackerBase:
         return None
 
     def _update_progress(self, progress_var):
-        """Cập nhật thanh tiến trình."""
         while True:
             try:
                 new_progress = self.progress_queue.get(timeout=1)
@@ -66,7 +65,7 @@ class CrackerBase:
         formatted_time = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
         status_label.config(
             text=f"Không tìm thấy mật khẩu.\nThời gian: {formatted_time}")
-        progress_var.set(0)
+        progress_var.set(100)
         self.progress_manager.delete_progress()
 
 
@@ -82,17 +81,13 @@ class BruteForce(CrackerBase):
             progress = {"current_length": 1, "current_index": 0}
 
         start_time = time.time()
-
         threading.Thread(target=self._update_progress, args=(progress_var,), daemon=True).start()
-
         progress_var.set(0)
-
-        chars_set = list(self.settings["character_set"])
 
         status_label.config(text=f"Đang thử mật khẩu...")
 
+        chars_set = list(self.settings["character_set"])
         total_combinations = len(chars_set) ** self.settings["max_password_length"]
-
         current_combinations = 0
 
         if total_combinations <= 1000: chunk_size = total_combinations
@@ -124,7 +119,7 @@ class BruteForce(CrackerBase):
                     "Brute Force",
                     self.settings,
                     current_length=length,
-                    current_index=start + chunk_size
+                    current_index=start + current_chunk_size
                 )
                 current_combinations += current_chunk_size
                 self.progress_queue.put(current_combinations / total_combinations * 100)
@@ -133,91 +128,75 @@ class BruteForce(CrackerBase):
             progress["current_length"] += 1
 
         self._handle_failure(start_time, status_label, progress_var)
-        self.progress_queue.put(0)
 
 
 class DictionaryAttacker(CrackerBase):
     def __init__(self, settings, progress_manager):
         super().__init__(settings, progress_manager)
 
-    def start_cracking(self, wordlist_path, progress_var, status_label):
+    def start_cracking(self, wordlist_path, progress_var, validate_progress, status_label):
         start_time = time.time()
-        status_label.config(text=f"Đang thử mật khẩu...")
-
-        # Bắt đầu luồng cập nhật tiến trình
         threading.Thread(target=self._update_progress, args=(progress_var,), daemon=True).start()
-
         progress_var.set(0)
+
+        status_label.config(text="Đang thử mật khẩu...")
 
         try:
             with open(wordlist_path, "r", encoding="utf-8") as f:
-                total_passwords = sum(1 for _ in f)  # Tổng số mật khẩu trong wordlist
-                f.seek(0)
+                # Tính tổng số mật khẩu
+                total_passwords = sum(1 for _ in f)
+                f.seek(0)  # Reset lại vị trí file
 
-                # Khôi phục tiến trình nếu có
+                # Tải tiến trình đã lưu (nếu có)
                 saved_progress = self.progress_manager.load_progress()
-                if saved_progress:
-                    current_index = saved_progress.get("current_index", 0)
-                    f.seek(current_index)  # Đọc tiếp từ vị trí lưu trước
-                else:
-                    current_index = 0
+                current_line = saved_progress.get("current_line", 0) if validate_progress else 0
 
-                chunk_size = max(total_passwords // self.settings["process_var"] // 10, 1000)
+
+                # Bỏ qua các dòng đã xử lý
+                for _ in range(current_line):
+                    f.readline()
+
+                chunk_size = min(max(500 * self.settings["process_var"], 3000), 8000)
+                lines_processed = current_line  # Bắt đầu từ số dòng đã lưu
 
                 for chunk in self._read_wordlist_in_chunks(f, chunk_size):
+                    # Gửi chunk tới hàm xử lý
                     result = self.run_cracking(self.settings["zip_file"], chunk)
 
-                    if result:
+                    if result:  # Nếu tìm thấy mật khẩu
                         self._handle_success(result, start_time, status_label, progress_var)
                         return
 
-                    # Cập nhật vị trí hiện tại
-                    current_index += sum(len(line) + 1 for line in chunk)  # Cộng số byte của mỗi dòng
-
-                    # Lưu tiến trình
+                    # Cập nhật tiến trình
+                    lines_processed += len(chunk)
                     self.progress_manager.save_progress(
                         mode="Dictionary Attack",
                         settings=self.settings,
-                        current_index=current_index,
+                        current_line=lines_processed,
                         wordlist_path=wordlist_path
                     )
 
-                    # Cập nhật thanh tiến trình
-                    progress_var.set(min(progress_var.get() + len(chunk) / total_passwords * 100, 100))
+                    # Cập nhật giá trị progress bar
+                    progress_var.get(min(lines_processed / total_passwords * 100, 100))
 
         except FileNotFoundError:
             status_label.config(text="Wordlist không tồn tại.")
         except Exception as e:
             status_label.config(text=f"Lỗi khi đọc wordlist: {e}")
+            print(f"Exception: {e}")  # Log lỗi chi tiết
 
+        # Xử lý khi không tìm thấy mật khẩu
         self._handle_failure(start_time, status_label, progress_var)
         self.progress_queue.put(0)
 
     @staticmethod
     def _read_wordlist_in_chunks(file_obj, chunk_size):
-        """
-        Đọc tệp wordlist theo từng chunk để giảm sử dụng bộ nhớ.
-
-        Args:
-            file_obj (file object): Tệp wordlist đã được mở để đọc chunk mật khẩu.
-            chunk_size (int): Số dòng (mật khẩu) tối đa trong mỗi chunk.
-
-        Yields:
-            list: Một chunk các dòng từ wordlist, với số dòng tối đa là `chunk_size`.
-        """
-        # Khởi tạo một chunk rỗng để lưu các dòng từ wordlist
+        """Đọc file wordlist theo từng chunk để giảm sử dụng bộ nhớ."""
         chunk = []
-
-        # Đọc từng dòng trong tệp wordlist
         for line in file_obj:
-            # Loại bỏ khoảng trắng và thêm dòng vào chunk
             chunk.append(line.strip())
-
-            # Khi chunk đạt đến kích thước tối đa (`chunk_size`)
             if len(chunk) >= chunk_size:
-                yield chunk  # Trả về chunk hiện tại
-                chunk = []  # Reset chunk để bắt đầu nhóm mới
-
-        # Nếu còn sót lại các dòng chưa được trả về (chunk chưa đầy)
-        if chunk:
-            yield chunk  # Trả về chunk cuối cùng
+                yield chunk
+                chunk = []
+        if chunk:  # Đảm bảo trả về phần còn lại
+            yield chunk
