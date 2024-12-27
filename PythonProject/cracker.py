@@ -1,202 +1,186 @@
-import concurrent.futures
-import multiprocessing
+import mmap
+import os
+import psutil
 import pyzipper
 import time
-from queue import Queue, Empty
-import threading
-from password_generator import PasswordGenerator
+from multiprocessing import Process, Value, current_process, Pool
+from tkinter import messagebox
+from progress_manager import ProgressManager
 
 
-def _crack_worker(zip_file, password, stop_flag, result_queue):
-    if stop_flag.is_set():
-        return
+def test_passwords_worker(args):
+    zip_path, password_batch = args
     try:
-        with pyzipper.AESZipFile(zip_file, 'r') as zf:
-            zf.extractall(pwd=password.encode('utf-8'))
-        stop_flag.set()
-        result_queue.put(password)
-    except (RuntimeError, pyzipper.BadZipFile):
-        return
-
-
-class CrackerBase:
-    def __init__(self, settings, progress_manager):
-        self.settings = settings
-        self.progress_manager = progress_manager
-        self.stop_flag = multiprocessing.Manager().Event()
-        self.progress_queue = Queue()
-        self.executor = concurrent.futures.ProcessPoolExecutor(
-            max_workers=self.settings["process_var"]
-        )
-
-    def run_cracking(self, zip_file, passwords):
-        result_queue = multiprocessing.Manager().Queue()
-        futures = [
-            self.executor.submit(_crack_worker, zip_file, password,
-                                 self.stop_flag, result_queue)
-            for password in passwords
-        ]
-        for _ in concurrent.futures.as_completed(futures):
-            if not result_queue.empty():
-                return result_queue.get()
+        with pyzipper.AESZipFile(zip_path, 'r') as zf:
+            for password in password_batch:
+                try:
+                    zf.setpassword(password.encode('utf-8'))
+                    zf.extractall()
+                    return password
+                except (RuntimeError, pyzipper.BadZipFile):
+                    continue
+    except Exception:
         return None
-
-    def _update_progress(self, progress_var):
-        while True:
-            try:
-                new_progress = self.progress_queue.get(timeout=1)
-                progress_var.set(new_progress)
-            except Empty:
-                if self.stop_flag.is_set():
-                    break
-
-    def _handle_success(self, result, start_time, status_label, progress_var):
-        elapsed_time = time.time() - start_time
-        formatted_time = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-        status_label.config(
-            text=f"Mật khẩu đã giải mã thành công: {result}\n"
-                 f"Thời gian: {formatted_time}"
-        )
-        self.progress_manager.delete_progress()
-        progress_var.set(100)
-
-    def _handle_failure(self, start_time, status_label, progress_var):
-        elapsed_time = time.time() - start_time
-        formatted_time = time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-        status_label.config(
-            text=f"Không tìm thấy mật khẩu.\nThời gian: {formatted_time}")
-        progress_var.set(100)
-        self.progress_manager.delete_progress()
+    return None
 
 
-class BruteForce(CrackerBase):
-    def __init__(self, settings, progress_manager):
-        super().__init__(settings, progress_manager)
-        self.password_generator = PasswordGenerator()
+def process_chunk_worker(args):
+    chunk_start, chunk_size, file_path, zip_path = args
+    p = psutil.Process()
+    worker_id = int(current_process().name.split('-')[-1]) - 1
+    p.cpu_affinity([worker_id % psutil.cpu_count()])
 
-    def start_cracking(self, progress_var, validate_progress, status_label):
-        if validate_progress:
-            progress = self.progress_manager.load_progress()
-        else:
-            progress = {"current_length": 1, "current_index": 0}
+    passwords = []
 
-        start_time = time.time()
-        threading.Thread(target=self._update_progress, args=(progress_var,), daemon=True).start()
-        progress_var.set(0)
+    with open(file_path, 'rb') as f:
+        mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+        mm.seek(chunk_start)
 
-        status_label.config(text=f"Đang thử mật khẩu...")
+        while mm.tell() < chunk_start + chunk_size:
+            line = mm.readline().decode('utf-8', errors='ignore').strip()
+            if not line:
+                break
+            passwords.append(line)
 
-        chars_set = list(self.settings["character_set"])
-        total_combinations = len(chars_set) ** self.settings["max_password_length"]
-        current_combinations = 0
-
-        if total_combinations <= 1000: chunk_size = total_combinations
-        else:
-            chunk_size = (total_combinations // self.settings["process_var"]) // 10
-            if chunk_size >= 10000: chunk_size = 10000
-
-        for length in range(progress["current_length"], self.settings["max_password_length"] + 1):
-            combinations = len(chars_set) ** length
-
-            for start in range(progress["current_index"], combinations, chunk_size):
-                end = min(start + chunk_size, combinations)
-                current_chunk_size = end - start
-                passwords = list(
-                    self.password_generator.generate_password_chunk_numpy(
-                        chars_set, length, start, end
-                    )
-                )
-
-                result = self.run_cracking(
-                    self.settings["zip_file"], passwords
-                )
-
+            if len(passwords) >= 10000:
+                result = test_passwords_worker((zip_path, passwords))
                 if result:
-                    self._handle_success(result, start_time, status_label, progress_var)
+                    mm.close()
+                    return result
+                passwords = []
+
+        if passwords:
+            result = test_passwords_worker((zip_path, passwords))
+            if result:
+                mm.close()
+                return result
+
+        mm.close()
+    return None
+
+class Cracker:
+    def __init__(self):
+        self.progress_manager = ProgressManager()
+        self.settings = self.progress_manager.settings
+        self.smallest_file = None
+        self.pause_flag = Value('i', 0)
+        self.current_min_index = Value('i', 2 ** 31 - 1)
+        self.chunk_size = 1024 * 1024
+
+    def cracker(self, zf, password):
+        try:
+            zf.setpassword(password.encode('utf-8'))
+            if self.smallest_file:
+                zf.extract(self.smallest_file)
+                return password
+        except (RuntimeError, pyzipper.BadZipFile):
+            return None
+        except Exception:
+            return None
+
+    def generate_password_from_index(self, charset, length, index):
+        password = ""
+        base = len(charset)
+        for _ in range(length):
+            password = charset[index % base] + password
+            index //= base
+        return password
+
+    def bf_for_each_process(self, id_process, total_combinations, stop_flag, start_index, start_time, zip_path):
+        charset = self.settings["charset"]
+        p = psutil.Process()
+        p.cpu_affinity([id_process])
+
+        with pyzipper.AESZipFile(zip_path, 'r') as zf:
+            for i in range(id_process + start_index, total_combinations, self.settings["number_workers"]):
+                if stop_flag.value:
+                    return
+                if self.pause_flag.value:
+                    with self.current_min_index.get_lock():
+                        self.current_min_index.value = min(self.current_min_index.value, i)
+                    while self.pause_flag.value:
+                        time.sleep(0.1)
+                password = self.generate_password_from_index(charset, self.settings["current_length"], i)
+                result = self.cracker(zf, password)
+                if result:
+                    stop_flag.value = 1
+                    messagebox.showinfo(
+                        "Thành công",
+                        f"Mật khẩu: {result}, thời gian thám mã: {time.time() - start_time:.2f} giây")
+                    self.progress_manager.delete_progress()
                     return
 
-                self.progress_manager.save_progress(
-                    "Brute Force",
-                    self.settings,
-                    current_length=length,
-                    current_index=start + current_chunk_size
-                )
-                current_combinations += current_chunk_size
-                self.progress_queue.put(current_combinations / total_combinations * 100)
-
-            progress["current_index"] = 0
-            progress["current_length"] += 1
-
-        self._handle_failure(start_time, status_label, progress_var)
-
-
-class DictionaryAttacker(CrackerBase):
-    def __init__(self, settings, progress_manager):
-        super().__init__(settings, progress_manager)
-
-    def start_cracking(self, wordlist_path, progress_var, validate_progress, status_label):
+    def brute_force(self):
         start_time = time.time()
-        threading.Thread(target=self._update_progress, args=(progress_var,), daemon=True).start()
-        progress_var.set(0)
+        charset = self.settings["charset"]
+        stop_flag = Value('i', 0)
 
-        status_label.config(text="Đang thử mật khẩu...")
+        # Tìm tệp nhỏ nhất trong zip trước khi bắt đầu brute force
+        with pyzipper.AESZipFile(self.settings["zip_path"], 'r') as zf:
+            min_size = float('inf')
+            for file in zf.namelist():
+                file_info = zf.getinfo(file)
+                if file_info.file_size < min_size:
+                    min_size = file_info.file_size
+                    self.smallest_file = file
+
+        for password_length in range(self.settings["current_length"], self.settings["max_length"] + 1):
+            self.settings["current_length"] = password_length
+            total_combinations = len(charset) ** password_length
+
+            processes = []
+            for id_process in range(self.settings["number_workers"]):
+                p = Process(target=self.bf_for_each_process,
+                            args=(id_process, total_combinations, stop_flag, self.settings["current_index"], start_time, self.settings["zip_path"]))
+                processes.append(p)
+                p.start()
+
+            for p in processes:
+                p.join()
+
+            if stop_flag.value:
+                return
+
+        # Nếu không tìm thấy mật khẩu sau khi thử hết các khả năng
+        messagebox.showinfo(
+            "Không thành công",
+            f"Không tìm thấy mật khẩu, thời gian thám mã: {time.time() - start_time:.2f} giây")
+        self.progress_manager.delete_progress()
+
+    def dictionary_attack(self):
+        start_time = time.time()
 
         try:
-            with open(wordlist_path, "r", encoding="utf-8") as f:
-                # Tính tổng số mật khẩu
-                total_passwords = sum(1 for _ in f)
-                f.seek(0)  # Reset lại vị trí file
+            file_size = os.path.getsize(self.settings["wordlist_path"])
+            num_chunks = max(self.settings["number_workers"] * 2, file_size // self.chunk_size)
+            chunk_size = file_size // num_chunks
 
-                # Tải tiến trình đã lưu (nếu có)
-                saved_progress = self.progress_manager.load_progress()
-                current_line = saved_progress.get("current_line", 0) if validate_progress else 0
+            chunks = [(i * chunk_size,
+                       chunk_size if i < num_chunks - 1 else file_size - i * chunk_size,
+                       self.settings["wordlist_path"],
+                       self.settings["zip_path"])
+                      for i in range(num_chunks)]
 
+            with Pool(processes=self.settings["number_workers"]) as pool:
+                result = None
+                for res in pool.imap_unordered(process_chunk_worker, chunks):
+                    if res:
+                        result = res
+                        break
 
-                # Bỏ qua các dòng đã xử lý
-                for _ in range(current_line):
-                    f.readline()
+            if result:
+                messagebox.showinfo(
+                    "Thành công",
+                    f"Mật khẩu: {result}. Thời gian thám mã: {time.time() - start_time:.2f} giây"
+                )
+            else:
+                messagebox.showinfo(
+                    "Không thành công",
+                    f"Không tìm thấy mật khẩu. Thời gian: {time.time() - start_time:.2f} giây"
+                )
 
-                chunk_size = min(max(500 * self.settings["process_var"], 3000), 8000)
-                lines_processed = current_line  # Bắt đầu từ số dòng đã lưu
-
-                for chunk in self._read_wordlist_in_chunks(f, chunk_size):
-                    # Gửi chunk tới hàm xử lý
-                    result = self.run_cracking(self.settings["zip_file"], chunk)
-
-                    if result:  # Nếu tìm thấy mật khẩu
-                        self._handle_success(result, start_time, status_label, progress_var)
-                        return
-
-                    # Cập nhật tiến trình
-                    lines_processed += len(chunk)
-                    self.progress_manager.save_progress(
-                        mode="Dictionary Attack",
-                        settings=self.settings,
-                        current_line=lines_processed,
-                        wordlist_path=wordlist_path
-                    )
-
-                    # Cập nhật giá trị progress bar
-                    progress_var.get(min(lines_processed / total_passwords * 100, 100))
-
-        except FileNotFoundError:
-            status_label.config(text="Wordlist không tồn tại.")
         except Exception as e:
-            status_label.config(text=f"Lỗi khi đọc wordlist: {e}")
-            print(f"Exception: {e}")  # Log lỗi chi tiết
+            messagebox.showerror("Lỗi", f"Lỗi dictionary attack: {str(e)}")
 
-        # Xử lý khi không tìm thấy mật khẩu
-        self._handle_failure(start_time, status_label, progress_var)
-        self.progress_queue.put(0)
-
-    @staticmethod
-    def _read_wordlist_in_chunks(file_obj, chunk_size):
-        """Đọc file wordlist theo từng chunk để giảm sử dụng bộ nhớ."""
-        chunk = []
-        for line in file_obj:
-            chunk.append(line.strip())
-            if len(chunk) >= chunk_size:
-                yield chunk
-                chunk = []
-        if chunk:  # Đảm bảo trả về phần còn lại
-            yield chunk
+        finally:
+            self.progress_manager.delete_progress()

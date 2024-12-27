@@ -1,88 +1,61 @@
 import json
 import os
-
+from tkinter import messagebox
 
 class ProgressManager:
-    def __init__(self, progress_file):
-        self.progress_file = progress_file
-
-    def save_progress(self, mode, settings, **kwargs):
-        """
-        Lưu tiến trình hiện tại cho một chế độ tấn công cụ thể.
-
-        Args:
-            mode (str): Tên chế độ (ví dụ: "Brute Force", "Dictionary Attack").
-            settings (dict): Cấu hình hiện tại.
-            kwargs: Các thông tin bổ sung, ví dụ:
-                - `current_length` (int): Độ dài mật khẩu (Brute Force).
-                - `current_index` (int): Chỉ số hiện tại (Dictionary Attack).
-                - `wordlist_path` (str): Đường dẫn tệp wordlist.
-        """
-        progress = {
-            "mode": mode,
-            "zip_file": settings.get("zip_file"),
-            "max_password_length": settings.get("max_password_length"),
-            "character_set": settings.get("character_set"),
+    def __init__(self):
+        self.settings = {
+            "mode": None,                   # Chế độ tấn công (Brute force hoặc Dictionary Attack)
+            "zip_path": None,               # Đường dẫn file zip
+            "charset": None,                # Bộ ký tự
+            "number_workers": 0,            # Số tiến trình thực hiện
+            "max_length": 0,                # Độ dài mật khẩu tối đa
+            "current_length": 0,            # Độ dài mật khẩu hiện tại
+            "current_index": 0,             # Chỉ số hiện tại
+            "wordlist_path": None           # Đường dẫn danh sách mật khẩu
         }
-        progress.update(kwargs)
+        self.progress_file = "progress.json"  # Tên file lưu tiến trình
+
+    def save_progress(self, index_min):
         try:
-            with open(self.progress_file, "w", encoding="utf-8") as f:
-                json.dump(progress, f, indent=4)
+            self.settings["current_index"] = index_min
+            with open(self.progress_file, "w") as file:
+                json.dump(self.settings, file, indent=4)
         except Exception as e:
-            print(f"Error occurred: {e}")
+            messagebox.showerror("Lỗi", f"Lỗi khi lưu tiến trình: {e}")
 
-    def load_progress(self):
-        """
-        Tải trạng thái tiến trình đã lưu.
+    def load_progress(self, mode):
+        if not os.path.exists(self.progress_file):
+            return None
 
-        Returns:
-            dict | None: Trạng thái tiến trình hoặc `None` nếu không tồn tại.
-        """
-        if os.path.exists(self.progress_file):
-            try:
-                with open(self.progress_file, "r", encoding="utf-8") as f:
-                    return json.load(f)
-            except (json.JSONDecodeError, IOError) as e:
-                print(f"Lỗi khi tải tiến trình: {e}")
-                self.delete_progress()
+        try:
+            with open(self.progress_file, "r") as file:
+                saved_settings = json.load(file)
+
+            if mode == "Brute Force":
+                if (saved_settings["zip_path"] == self.settings["zip_path"] and
+                        saved_settings["max_length"] == self.settings["max_length"] and
+                        saved_settings["charset"] == self.settings["charset"]):
+                    if messagebox.askyesno(
+                            "Tìm thấy tiến trình đã lưu",
+                            "Bạn có muốn tiếp tục từ lần dừng trước không?"):
+                        return saved_settings
+
+            elif mode == "Dictionary Attack":
+                if (saved_settings["zip_path"] == self.settings["zip_path"] and
+                        saved_settings["wordlist_path"] == self.settings["wordlist_path"]):
+                    if messagebox.askyesno(
+                            "Tìm thấy tiến trình đã lưu",
+                            "Bạn có muốn tiếp tục từ lần dừng trước không?"):
+                        return saved_settings
+
+        except Exception as e:
+            messagebox.showerror("Lỗi", f"Lỗi khi tải tiến trình: {e}")
         return None
 
     def delete_progress(self):
-        """Xóa tệp tiến trình đã lưu."""
         if os.path.exists(self.progress_file):
-            os.remove(self.progress_file)
-
-    def validate_progress(self, mode, settings, **kwargs):
-        """
-        Kiểm tra tiến trình đã lưu có hợp lệ với chế độ hiện tại không.
-
-        Args:
-            mode (str): Tên chế độ (ví dụ: "Brute Force", "Dictionary Attack").
-            settings (dict): Cấu hình hiện tại.
-            kwargs: Các thông tin bổ sung cần kiểm tra.
-
-        Returns:
-            dict | None: Trạng thái tiến trình hợp lệ hoặc `None` nếu không hợp lệ.
-        """
-        progress = self.load_progress()
-        if not progress:
-            return None
-
-        # Kiểm tra chế độ và các khóa cơ bản
-        if progress.get("mode") != mode or progress.get("zip_file") != settings.get("zip_file"):
-            return None
-
-        # Kiểm tra các thông tin bổ sung tùy theo chế độ
-        if mode == "Brute Force":
-            if (progress.get("max_password_length") == settings.get("max_password_length") and
-                    progress.get("character_set") == settings.get("character_set") and
-                    progress.get("current_length", 0) > 0 and
-                    progress.get("current_index", 0) > 0):
-                return progress
-
-        if mode == "Dictionary Attack":
-            if (progress.get("wordlist_path") == kwargs.get("wordlist_path") and
-                    progress.get("current_index", 0) > 0):
-                return progress
-
-        return None
+            try:
+                os.remove(self.progress_file)
+            except Exception as e:
+                messagebox.showerror("Lỗi", f"Lỗi khi xóa tiến trình: {e}")
