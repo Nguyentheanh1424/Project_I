@@ -210,7 +210,7 @@ class GUI:
             if not 1 <= workers <= os.cpu_count() - 2:
                 raise ValueError
         except ValueError:
-            messagebox.showerror("Error", "Workers must be between 1 and 16.")
+            messagebox.showerror("Error", f"Workers must be between 1 and {os.cpu_count() - 2}.")
             return False
 
         mode = self.mode_var.get()
