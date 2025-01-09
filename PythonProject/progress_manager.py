@@ -43,7 +43,6 @@ class ProgressManager:
                 return None
             with open(self.progress_file, "r") as file:
                 saved_settings = json.load(file)
-                print("Saved settings:", saved_settings)
                 if saved_settings.get("mode") != mode:
                     return None
                 if saved_settings.get("mode") == "Brute Force":

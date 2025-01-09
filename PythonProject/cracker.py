@@ -1,5 +1,6 @@
 import os
 import queue
+import signal
 import time
 from multiprocessing import Process, Manager, Value, Queue
 from tkinter import messagebox
@@ -15,6 +16,7 @@ class Cracker:
         self.settings = self.progress_manager.settings
         self.smallest_file = None
         self.pause_flag = Value('i', 0)
+        self.stop_flag = Value('i', 0)
         self.current_min_index = Value('i', 2 ** 31 - 1)
         self.total_password = Value('i', 0)
         self.passwords_tried = Value('i', 0)
@@ -149,7 +151,9 @@ class Cracker:
         self.validate_settings()
         self.start_time = time.time()
         charset = self.settings["charset"]
-        stop_flag = Value('i', 0)
+
+        with self.stop_flag.get_lock():
+            self.stop_flag.value = 0
 
         if "passwords_tried" in self.settings:
             with self.passwords_tried.get_lock():
@@ -175,7 +179,7 @@ class Cracker:
 
                 producer = Process(
                     target=self.index_producer,
-                    args=(total_combinations, stop_flag, self.pause_flag)
+                    args=(total_combinations, self.stop_flag, self.pause_flag)
                 )
                 producer.daemon = True
                 producer.start()
@@ -186,7 +190,7 @@ class Cracker:
                         target=self.bf_worker,
                         args=(
                             id_process,
-                            stop_flag,
+                            self.stop_flag,
                             self.current_min_index,
                             self.start_time,
                             self.settings["zip_path"],
@@ -201,7 +205,7 @@ class Cracker:
                 for worker in workers:
                     worker.join()
 
-                if stop_flag.value:
+                if self.stop_flag.value:
                     return
 
                 self.settings["current_index"] = 0
@@ -219,9 +223,17 @@ class Cracker:
         self.settings = settings
         self.validate_settings()
         self.start_time = time.time()
+
+        with self.stop_flag.get_lock():
+            self.stop_flag.value = 0
+
         wordlist_path = self.settings["wordlist_path"]
         zip_path = self.settings["zip_path"]
         number_workers = self.settings["number_workers"]
+
+        if "passwords_tried" in self.settings:
+            with self.passwords_tried.get_lock():
+                self.passwords_tried.value = self.settings["passwords_tried"]
 
         with open(wordlist_path, 'rb') as f:
             self.total_password.value = sum(chunk.count(b'\n') for chunk in iter(lambda: f.read(8192), b''))
@@ -234,13 +246,12 @@ class Cracker:
         try:
             with Manager() as manager:
                 password_queue = manager.Queue()
-                stop_flag = manager.Value('i', 0)
                 found_password = manager.Value('s', '')
                 processes = []
 
                 producer = Process(
                     target=self.password_producer,
-                    args=(wordlist_path, password_queue, stop_flag, number_workers)
+                    args=(wordlist_path, password_queue, self.stop_flag, number_workers)
                 )
                 producer.daemon = True
                 producer.start()
@@ -251,7 +262,7 @@ class Cracker:
                         args=(
                             zip_path,
                             password_queue,
-                            stop_flag,
+                            self.stop_flag,
                             found_password,
                             self.smallest_file,
                             process_id,
@@ -268,7 +279,7 @@ class Cracker:
                 for process in processes:
                     process.join()
 
-                if stop_flag.value:
+                if self.stop_flag.value:
                     self.passwords_tried.value = self.total_password.value
                     messagebox.showinfo(
                         "Success",
@@ -283,6 +294,7 @@ class Cracker:
         except Exception as e:
             print(f"Error: {e}")
 
+
     def password_producer(self, wordlist_path: str, password_queue: Queue,
                           stop_flag: Value, num_consumers: int):
         p = psutil.Process()
@@ -291,6 +303,11 @@ class Cracker:
         try:
             batch = []
             batch_size_lines = 0
+
+            with open(wordlist_path, 'r', encoding='utf-8') as file:
+                # Skip lines until start_line
+                for _ in range(self.passwords_tried.value):
+                    next(file)
 
             with open(wordlist_path, 'r', encoding='utf-8') as file:
                 for line in file:
