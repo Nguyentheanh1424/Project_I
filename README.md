@@ -1,103 +1,140 @@
-# Password Cracker
+# ZIP Password Cracker
 
-A multi-threaded password cracker for ZIP files, supporting both brute force and dictionary-based attacks. Designed for high performance and flexibility, it uses multiple processes to efficiently test passwords.
+A high-performance, multi-process ZIP file password recovery tool with an intuitive graphical interface. The application supports both brute force and dictionary-based attacks, utilizing multiple CPU cores for optimal performance.
 
 ## Features
 
-- **Brute Force Attack:** Test all possible password combinations for ZIP files, customizable by character set and password length.
-- **Dictionary Attack:** Use a wordlist to try known passwords.
-- **Multi-Processing:** Utilizes multiple CPU cores for faster execution.
-- **Pause and Resume:** Support for pausing and resuming operations.
+### Core Functionality
+- **Dual Attack Modes**
+  - Brute Force: Systematically tests all possible combinations
+  - Dictionary Attack: Tests passwords from a predefined wordlist
+- **Multi-Process Architecture**
+  - Leverages multiple CPU cores for parallel processing
+  - Configurable number of worker processes
+  - Optimized workload distribution
+- **Progress Management**
+  - Real-time progress tracking with ETA
+  - Pause and resume functionality
+  - Automatic progress saving
+  - Progress recovery after interruption
+
+### User Interface
+- **Modern Graphical Interface**
+  - Clean and intuitive layout
+  - Real-time progress visualization
+  - Status updates and ETA display
+- **Customizable Settings**
+  - Adjustable character sets for brute force attacks
+  - Configurable maximum password length
+  - Custom worker process count
+  - Wordlist selection for dictionary attacks
+
+## Installation
 
 ### Prerequisites
+- Python 3.6 or higher
+- Required Python packages:
+  ```
+  pyzipper
+  psutil
+  tkinter
+  ```
 
-- Python 3.7 or higher
-- Required libraries (listed in `requirements.txt`)
-
-### Steps
-
+### Setup
 1. Clone the repository:
-    ```cmd
-    git clone [https://github.com/yourusername/password-cracker.git](https://github.com/Nguyentheanh1424/Project_I)
-    ```
+   ```bash
+   git clone https://github.com/yourusername/zip-password-cracker.git
+   ```
 2. Install dependencies:
-    ```cmd
-    pip install -r requirements.txt
-    ```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ## Usage
 
-### Brute Force Attack
-Run the brute force attack mode with:
-```cmd
-python main.py --mode brute_force --zip_path <path_to_zip> --charset <charset> --min_length <min> --max_length <max>
-```
-Example:
-```cmd
-python main.py --mode brute_force --zip_path example.zip --charset abcdef123 --min_length 4 --max_length 6
+### Starting the Application
+Run the application by executing:
+```bash
+python gui.py
 ```
 
-### Dictionary Attack
-Run the dictionary attack mode with:
-```cmd
-python main.py --mode dictionary --zip_path <path_to_zip> --wordlist_path <path_to_wordlist>
-```
-Example:
-```cmd
-python main.py --mode dictionary --zip_path example.zip --wordlist_path wordlist.txt
-```
+### Brute Force Attack Configuration
+1. Select "Brute Force" mode
+2. Configure the following parameters:
+   - **Max Length**: Maximum password length to try
+   - **Character Set**: Choose from:
+     - lowercase
+     - uppercase
+     - digits
+     - special
+   - Combine multiple sets using '+' (e.g., "lowercase + digits")
 
-## Configuration
+### Dictionary Attack Configuration
+1. Select "Dictionary Attack" mode
+2. Select your wordlist file using the browse button
+3. Ensure your wordlist is a text file with one password per line
 
-Settings can be customized in the `settings.json` file:
-```json
-{
-  "charset": "abcdefghijklmnopqrstuvwxyz0123456789",
-  "current_length": 4,
-  "max_length": 8,
-  "number_workers": 4,
-  "zip_path": "example.zip",
-  "wordlist_path": "wordlist.txt"
-}
-```
+### Worker Process Configuration
+- Set the number of worker processes (recommended: CPU cores - 2)
+- Maximum value is automatically limited to your system's CPU count
 
-## How It Works
+### Control Options
+- **Start Attack**: Begins the password recovery process
+- **Pause/Resume**: Temporarily halts the process while preserving progress
+- **Exit**: Safely terminates the application
 
-### Brute Force
-1. The program splits the workload among multiple processes.
-2. Each process generates a range of passwords to test.
-3. The password is checked by attempting to extract a file from the ZIP archive.
+## Technical Implementation
 
-### Dictionary
-1. The wordlist is divided among multiple processes based on the line index.
-2. Each process tests passwords from its assigned portion of the wordlist.
+### Process Management
+- Main process handles GUI and coordinates worker processes
+- Worker processes handle password testing
+- Inter-process communication via shared memory and queues
 
-## Example
+### Progress Tracking
+- Real-time tracking of:
+  - Passwords tried
+  - Success rate
+  - Estimated time remaining
+  - Current progress percentage
 
-### Success Case
-If the password is found, the program outputs:
-```
-Password: your_password, cracking time: 120.50 seconds
-```
+### Error Handling
+- Comprehensive error checking for:
+  - File operations
+  - Process management
+  - Invalid input validation
+  - Resource management
 
-### Failure Case
-If the password is not found after exhausting all possibilities:
-```
-Password not found, cracking time: 180.00 seconds
-```
+## Performance Considerations
+
+### Optimization Techniques
+- Batch processing of passwords
+- Efficient memory management
+- CPU affinity setting for workers
+- Minimal inter-process communication
+
+### Resource Usage
+- Memory usage scales with number of workers
+- CPU usage distributed across available cores
+- Disk I/O minimized through buffering
+
+## Security Notice
+
+This tool is intended for legitimate password recovery of your own files. Usage should comply with applicable laws and regulations. The authors are not responsible for any misuse of this software.
+
+## Error Codes and Troubleshooting
+
+Common error messages and their solutions:
+- "Invalid ZIP file path": Ensure the ZIP file exists and is accessible
+- "Invalid number of CPU cores": Adjust worker count within system limits
+- "Invalid character set": Verify character set syntax and combinations
+- "ZIP file contains no files": Ensure ZIP file contains extractable content
 
 ## Contributing
 
-We welcome contributions! To get started:
+Contributions are welcome! Please follow these steps:
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature-name`).
-3. Commit your changes (`git commit -m "Add feature"`).
-4. Push to your branch (`git push origin feature-name`).
-5. Open a pull request.
-
-
-## Disclaimer,
-
-This tool is intended for educational purposes only. The author is not responsible for any misuse.
-
+Ensure your code follows the project's style guidelines and includes appropriate tests.
