@@ -5,14 +5,12 @@ from tkinter import filedialog, ttk
 from threading import Thread
 from cracker import Cracker
 
-
 class GUI:
     def __init__(self, root):
         self.root = root
         self.root.title("ZIP Password Cracker")
-        self.root.geometry("550x500")
+        self.root.geometry("510x500")
         self.root.resizable(False, False)
-
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         self.style = ttk.Style()
@@ -46,6 +44,11 @@ class GUI:
 
         self.cracker = Cracker()
         self.settings = self.cracker.settings
+
+
+    def exit_program(self):
+        self.root.destroy()
+        self.cracker.turn_stop_flag(False)
 
 
     def setup_gui(self):
@@ -131,7 +134,7 @@ class GUI:
         self.pause_button.pack(side="left", padx=5)
         self.pause_button.configure(state="disabled")
 
-        ttk.Button(button_frame, text="Exit", command=self.root.destroy).pack(side="left", padx=5)
+        ttk.Button(button_frame, text="Exit", command=self.exit_program).pack(side="left", padx=5)
 
         self.components_to_disable.extend([
             browse_zip_btn, self.zip_entry, mode_combo,

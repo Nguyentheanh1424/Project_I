@@ -1,14 +1,11 @@
 import os
 import queue
-import signal
 import time
 from multiprocessing import Process, Manager, Value, Queue
 from tkinter import messagebox
 import psutil
 import pyzipper
-
 from progress_manager import ProgressManager
-
 
 class Cracker:
     def __init__(self):
@@ -21,8 +18,11 @@ class Cracker:
         self.total_password = Value('i', 0)
         self.passwords_tried = Value('i', 0)
         self.index_queue = None
-        self.batch_size = 2000
+        self.batch_size = 2500
         self.start_time = None
+
+    def turn_stop_flag(self, flag):
+        self.stop_flag = flag
 
     def validate_settings(self):
         try:
@@ -76,13 +76,13 @@ class Cracker:
         except (pyzipper.BadZipFile, RuntimeError, Exception):
             return None
 
-    def index_producer(self, total_combinations, stop_flag, pause_flag):
+    def index_producer(self, total_combinations, pause_flag):
         try:
             p = psutil.Process()
             p.cpu_affinity([self.settings["number_workers"]])
 
             current_index = self.settings["current_index"]
-            while current_index < total_combinations and not stop_flag.value:
+            while current_index < total_combinations and not self.stop_flag.value:
                 if pause_flag.value:
                     time.sleep(0.1)
                     continue
@@ -100,7 +100,7 @@ class Cracker:
             for _ in range(self.settings["number_workers"]):
                 self.index_queue.put(None)
 
-    def bf_worker(self, id_process, stop_flag, current_min_index, start_time, zip_path, pause_flag):
+    def bf_worker(self, id_process, current_min_index, start_time, zip_path, pause_flag):
         try:
             charset = self.settings["charset"]
             encoded_chars = [c.encode('utf-8') for c in charset]
@@ -109,20 +109,20 @@ class Cracker:
             p.cpu_affinity([id_process % self.settings["number_workers"]])
 
             with pyzipper.AESZipFile(zip_path, 'r') as zf:
-                while not stop_flag.value:
+                while not self.stop_flag.value:
                     try:
                         batch = self.index_queue.get(timeout=1)
                         if batch is None:
                             break
 
                         for index in batch:
-                            if stop_flag.value:
+                            if self.stop_flag.value:
                                 break
 
                             if pause_flag.value:
                                 with current_min_index.get_lock():
                                     current_min_index.value = min(current_min_index.value, index)
-                                while pause_flag.value and not stop_flag.value:
+                                while pause_flag.value and not self.stop_flag.value:
                                     time.sleep(0.1)
                                 continue
 
@@ -130,7 +130,7 @@ class Cracker:
                                                 index, encoded_chars)
                             if result:
                                 self.passwords_tried.value = self.total_password.value
-                                stop_flag.value = 1
+                                self.stop_flag.value = 1
                                 messagebox.showinfo(
                                     "Success",
                                     f"Password: {result}, cracking time: {time.time() - start_time:.2f} seconds")
@@ -175,11 +175,11 @@ class Cracker:
                 self.settings["current_length"] = password_length
                 total_combinations = len(charset) ** password_length
 
-                self.index_queue = manager.Queue(maxsize=10000)
+                self.index_queue = manager.Queue(maxsize=30000)
 
                 producer = Process(
                     target=self.index_producer,
-                    args=(total_combinations, self.stop_flag, self.pause_flag)
+                    args=(total_combinations, self.pause_flag)
                 )
                 producer.daemon = True
                 producer.start()
@@ -190,7 +190,6 @@ class Cracker:
                         target=self.bf_worker,
                         args=(
                             id_process,
-                            self.stop_flag,
                             self.current_min_index,
                             self.start_time,
                             self.settings["zip_path"],
@@ -205,18 +204,15 @@ class Cracker:
                 for worker in workers:
                     worker.join()
 
-                if self.stop_flag.value:
-                    return
-
                 self.settings["current_index"] = 0
 
                 if self.pause_flag.value:
                     self.progress_manager.save_progress(self.current_min_index.value, self.passwords_tried.value)
                     return
-
-        messagebox.showinfo(
-            "Unsuccessful",
-            f"Password not found, cracking time: {time.time() - self.start_time:.2f} seconds")
+        if self.stop_flag.value == 0:
+            messagebox.showinfo(
+                "Unsuccessful",
+                f"Password not found, cracking time: {time.time() - self.start_time:.2f} seconds")
         self.progress_manager.delete_progress()
 
     def dictionary_attack(self, settings):
@@ -245,7 +241,7 @@ class Cracker:
 
         try:
             with Manager() as manager:
-                password_queue = manager.Queue()
+                password_queue = manager.Queue(maxsize=30000)
                 found_password = manager.Value('s', '')
                 processes = []
 
