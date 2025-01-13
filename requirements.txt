@@ -1,0 +1,10 @@
+# Core dependencies
+pyzipper>=1.0.5
+psutil>=5.9.0
+
+# GUI dependencies
+tk>=8.6
+
+# Optional but recommended for better performance
+setuptools>=65.5.1
+wheel>=0.38.4
