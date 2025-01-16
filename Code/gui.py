@@ -47,8 +47,9 @@ class GUI:
 
 
     def exit_program(self):
+        if hasattr(self.cracker, 'stop_flag'):
+            self.cracker.stop_flag.value = 1
         self.root.destroy()
-        self.cracker.turn_stop_flag(False)
 
 
     def setup_gui(self):
@@ -168,36 +169,39 @@ class GUI:
         if not hasattr(self.cracker, 'start_time') or not self.cracker.start_time:
             return
 
-        current = self.cracker.passwords_tried.value
-        total = self.cracker.total_password.value
-        elapsed_time = time.time() - self.cracker.start_time
+        try:
+            current = self.cracker.passwords_tried.value
+            total = self.cracker.total_password.value
+            elapsed_time = time.time() - self.cracker.start_time
 
-        if total > 0:
-            percentage = (current / total) * 100
-            remaining = total - current
+            if total > 0:
+                percentage = min((current / total) * 100, 100)  # Ensure percentage doesn't exceed 100
+                remaining = total - current
 
-            if current > 0:
-                time_per_password = elapsed_time / current
-                estimated_remaining = time_per_password * remaining
-                hours_remaining = estimated_remaining // 3600
-                minutes_remaining = (estimated_remaining % 3600) // 60
-                seconds_remaining = estimated_remaining % 60
+                if current > 0:
+                    time_per_password = elapsed_time / current
+                    estimated_remaining = time_per_password * remaining
+                    hours_remaining = estimated_remaining // 3600
+                    minutes_remaining = (estimated_remaining % 3600) // 60
+                    seconds_remaining = estimated_remaining % 60
 
-                current_formatted = "{:,}".format(current)
-                total_formatted = "{:,}".format(total)
+                    current_formatted = "{:,}".format(current)
+                    total_formatted = "{:,}".format(total)
 
-                if not self.is_paused:
-                    status_text = (
-                        f"Progress: {current_formatted}/{total_formatted} ({percentage:.2f}%) - "
-                        f"ETA: {int(hours_remaining)}h {int(minutes_remaining)}m {int(seconds_remaining)}s"
-                    )
+                    if not self.is_paused:
+                        status_text = (
+                            f"Progress: {current_formatted}/{total_formatted} ({percentage:.2f}%) - "
+                            f"ETA: {int(hours_remaining)}h {int(minutes_remaining)}m {int(seconds_remaining)}s"
+                        )
+                    else:
+                        status_text = f"Attack paused at {percentage:.2f}%"
+
+                    self.status_label.config(text=status_text, foreground="orange")
+                    self.progress["value"] = percentage
                 else:
-                    status_text = f"Attack paused at {percentage:.2f}%"
-
-                self.status_label.config(text=status_text, foreground="orange")
-                self.progress["value"] = percentage
-            else:
-                self.status_label.config(text="Calculating remaining time...", foreground="orange")
+                    self.status_label.config(text="Calculating remaining time...", foreground="orange")
+        except Exception as e:
+            print(f"Error in _update_progress: {e}")
 
 
     def disable_components(self):
@@ -283,7 +287,16 @@ class GUI:
 
     def run_attack(self):
         try:
+            # Validate input before starting
+            if not self._validate_inputs():
+                return
+
             self._configure_attack_settings()
+
+            # Reset progress tracking
+            self.cracker.passwords_tried.value = 0
+            self.cracker.total_password.value = 0
+            self.cracker.start_time = time.time()
 
             if self.mode_var.get() == "Brute Force":
                 self._run_brute_force_attack()
@@ -292,12 +305,56 @@ class GUI:
 
         except Exception as e:
             self.status_label.config(text=f"Error: {str(e)}", foreground="red")
+            raise
         finally:
             self.stop_progress_update()
             self.enable_components()
             self.pause_button.configure(state="disabled", text="Pause")
             self.is_paused = False
             self.cracker.pause_flag.value = 0
+
+    def _validate_inputs(self):
+        # Validate ZIP file
+        if not self.zip_entry.get().strip():
+            self.status_label.config(text="Error: Please select a ZIP file", foreground="red")
+            return False
+
+        # Validate workers
+        try:
+            workers = int(self.workers_entry.get().strip())
+            if workers < 1 or workers > os.cpu_count() - 2:
+                raise ValueError
+        except ValueError:
+            self.status_label.config(
+                text=f"Error: Workers must be between 1 and {os.cpu_count() - 2}",
+                foreground="red"
+            )
+            return False
+
+        if self.mode_var.get() == "Brute Force":
+            # Validate max length
+            try:
+                max_length = int(self.max_length_entry.get().strip())
+                if max_length < 1:
+                    raise ValueError
+            except ValueError:
+                self.status_label.config(text="Error: Invalid maximum length", foreground="red")
+                return False
+
+            # Validate charset
+            charset = self.parse_charset(self.charset_entry.get().strip())
+            if not charset:
+                self.status_label.config(text="Error: Invalid character set", foreground="red")
+                return False
+        else:
+            # Validate wordlist
+            if not self.wordlist_entry.get().strip():
+                self.status_label.config(text="Error: Please select a wordlist file", foreground="red")
+                return False
+
+        return True
+
+
 
     def _configure_attack_settings(self):
         self.settings.update({
@@ -313,35 +370,55 @@ class GUI:
         })
 
     def _run_brute_force_attack(self):
-        progress = self.cracker.progress_manager.load_progress("Brute Force",
-                                                               charset = self.parse_charset(self.charset_entry.get().strip()),
-                                                               max_length = int(self.max_length_entry.get().strip()))
-        if not progress:
-            self.settings.update({
-                "zip_path": self.zip_entry.get().strip(),
-                "mode": self.mode_var.get(),
-                "number_workers": int(self.workers_entry.get().strip()),
-                "max_length": int(self.max_length_entry.get().strip()),
-                "charset": self.parse_charset(self.charset_entry.get().strip()),
-                "current_length": 1,
-                "current_index": 0,
-                "passwords_tried": 0
-            })
-        else:
-            self.settings = progress
-        self.cracker.brute_force(self.settings)
+        try:
+            progress = self.cracker.progress_manager.load_progress(
+                "Brute Force",
+                charset=self.parse_charset(self.charset_entry.get().strip()),
+                max_length=int(self.max_length_entry.get().strip())
+            )
+
+            if not progress:
+                self.settings.update({
+                    "zip_path": self.zip_entry.get().strip(),
+                    "mode": self.mode_var.get(),
+                    "number_workers": int(self.workers_entry.get().strip()),
+                    "max_length": int(self.max_length_entry.get().strip()),
+                    "charset": self.parse_charset(self.charset_entry.get().strip()),
+                    "current_length": 1,
+                    "current_index": 0,
+                    "passwords_tried": 0
+                })
+            else:
+                self.settings = progress
+
+            self.cracker.brute_force(self.settings)
+        except Exception as e:
+            self.status_label.config(text=f"Error in brute force attack: {str(e)}", foreground="red")
+            raise
 
     def _run_dictionary_attack(self):
-        progress = self.cracker.progress_manager.load_progress("Dictionary Attack", wordlist_path = self.wordlist_entry.get().strip())
-        if not progress:
-            self.settings.update({
-                "zip_path": self.zip_entry.get().strip(),
-                "mode": self.mode_var.get(),
-                "wordlist_path": self.wordlist_entry.get().strip(),
-            })
-        else:
-            self.settings = progress
-        self.cracker.dictionary_attack(self.settings)
+        try:
+            progress = self.cracker.progress_manager.load_progress(
+                "Dictionary Attack",
+                wordlist_path=self.wordlist_entry.get().strip()
+            )
+
+            if not progress:
+                self.settings.update({
+                    "zip_path": self.zip_entry.get().strip(),
+                    "mode": self.mode_var.get(),
+                    "number_workers": int(self.workers_entry.get().strip()),
+                    "wordlist_path": self.wordlist_entry.get().strip(),
+                    "current_index": 0,
+                    "passwords_tried": 0
+                })
+            else:
+                self.settings = progress
+
+            self.cracker.dictionary_attack(self.settings)
+        except Exception as e:
+            self.status_label.config(text=f"Error in dictionary attack: {str(e)}", foreground="red")
+            raise
 
     def on_closing(self):
         self.stop_progress_update()
