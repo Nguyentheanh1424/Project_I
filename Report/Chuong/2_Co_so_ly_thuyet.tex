@@ -1,0 +1,87 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Nội dung ở chương trước đã giới thiệu về vấn đề khôi phục mật khẩu cho tệp ZIP và tính cấp thiết của việc phát triển một công cụ hiệu quả. Để xây dựng công cụ này, cần nắm rõ các khái niệm nền tảng liên quan đến định dạng ZIP, mã hóa AES, và các phương pháp tấn công mật khẩu phổ biến. Vì vậy ở chương 2, nội dung tập trung trình bày các nội dung lý thuyết như sau:
+
+\section{Định dạng ZIP}
+\label{section:2.1}
+Định dạng ZIP là một phương pháp nén dữ liệu không mất mát (lossless) nổi bật và phổ biến, chủ yếu được sử dụng để lưu trữ và truyền tải nhiều tệp trong một tệp duy nhất. Phương pháp này không chỉ giúp tiết kiệm không gian lưu trữ mà còn thuận tiện trong việc chia sẻ tệp qua các kênh truyền tải có giới hạn về dung lượng. Cơ chế nén trong ZIP chủ yếu kết hợp hai thuật toán nén là \textbf{Lempel-Ziv 77} và \textbf{Mã hóa Huffman}. 
+
+Thuật toán \textbf{Lempel-Ziv 77} hoạt động theo cách tìm kiếm các chuỗi ký tự lặp lại trong dữ liệu và thay thế chúng bằng một tham chiếu đến vị trí và chiều dài của chuỗi đó. Việc này giúp giảm kích thước tệp một cách hiệu quả, bởi vì thay vì lưu trữ các chuỗi lặp lại, chỉ cần lưu trữ thông tin tham chiếu tương đối về vị trí và độ dài chuỗi. Cùng với đó, \textbf{Mã hóa Huffman} được sử dụng để tối ưu hóa mã hóa các ký tự xuất hiện với tần suất cao hơn, gán cho chúng các mã ngắn hơn, từ đó giảm dung lượng tệp nén. 
+
+Ngoài các thuật toán nén, định dạng ZIP còn hỗ trợ lưu trữ các siêu dữ liệu (Metadata), như tên tệp, thời gian sửa đổi, và mã kiểm tra CRC. Mã kiểm tra CRC giúp kiểm tra tính toàn vẹn của dữ liệu, bảo đảm rằng tệp nén không bị lỗi trong quá trình lưu trữ hoặc truyền tải. Điều này đặc biệt quan trọng trong việc đảm bảo rằng người nhận có thể giải nén tệp một cách chính xác mà không gặp phải các lỗi về dữ liệu.
+
+\section{Mã hóa ZIP}
+\label{section:2.2}
+Trong định dạng ZIP, mã hóa không phải là một phần của cơ chế nén dữ liệu cơ bản nhưng lại là một tính năng quan trọng đối với bảo mật sau khi thực hiện cơ chế nén. Việc mã hóa trong ZIP chủ yếu được sử dụng để bảo vệ các tệp nén khỏi truy cập trái phép. Tuy nhiên, tính năng mã hóa trong ZIP cũng có sự khác biệt đáng kể về phương thức và mức độ bảo mật, tùy thuộc vào thuật toán mã hóa được áp dụng. Có hai phương thức mã hóa chính được sử dụng để bảo vệ tệp dữ liệu ZIP đó là: \textbf{Mã hóa XOR} (Truyền thống) và \textbf{Mã hóa AES} (Advanced Encryption Standard). 
+
+\subsection{Mã hóa XOR}
+\label{subsection:2.2.1}
+Mã hóa XOR là một phương pháp rất đơn giản và cơ bản, trong đó mỗi bit của dữ liệu gốc sẽ thực hiện phép toán logic XOR với một bit trong khóa mật khẩu. Quá trình này có thể được đảo ngược bằng cách áp dụng lại phép toán XOR với cùng một khóa.  
+
+Đây không phải là một phương pháp mã hóa tệp tin an toàn trong thực tế. Do tính chất đơn giản của thuật toán, nếu kẻ tấn công biết hoặc đoán được một phần dữ liệu, họ có thể dễ dàng khôi phục khóa mật khẩu và giải mã dữ liệu. Mã hóa XOR không có tính bảo mật mạnh mẽ và thường được xem là không đủ an toàn cho việc mã hóa thông tin. 
+
+Hiện nay, hầu hết mã hóa XOR chỉ được sử dụng trong các ứng dụng đơn giản và có tuổi đời lâu dài, và hầu như không bao giờ được sử dụng trong các hệ thống bảo mật hiện đại. Do tính dễ bị phá vỡ của nó, XOR chỉ thích hợp cho các trường hợp yêu cầu bảo mật thấp hoặc khi không cần bảo vệ dữ liệu nghiêm ngặt. 
+
+\subsection{Mã hóa AES}
+\label{subsection:2.2.2}
+AES là một thuật toán mã hóa đối xứng, nghĩa là cùng một khóa được sử dụng cho cả mã hóa và giải mã. Dạng mã hóa này được thiết kế dựa trên một cấu trúc gọi là \textbf{sơ đồ Ma trận} (Substitution-Permutation Network - SPN), trong đó dữ liệu gốc được biến đổi qua một loạt các vòng mã hóa.
+
+Mã hóa AES làm việc trên từng khối dữ liệu có kích thước cố định là 128-bit, chia khối dữ liệu thành 16 byte và xử lý từng byte thông qua các phép toán mã hóa. Ban đầu, khóa gốc được người dùng lựa chọn và có độ dài (bit) cố định tùy thuộc vào mỗi phiên bản (AES-128, AES-192, AES-256). Khóa gốc sau khi xác định sẽ được chuyển đổi thành một loạt các khóa con (round keys). Tất cả các vòng mã trong AES sau đó đều sẽ sử dụng các khóa con này. Số lượng của khóa con được tạo ra phụ thuộc vào độ dài của khóa gốc và số vòng mã hóa, cụ thể:
+\begin{itemize}
+    \item AES-128: Thực hiện 10 vòng mã hóa, yêu cầu 11 khóa con.
+    \item AES-192: Thực hiện 12 vòng mã hóa, yêu cầu 13 khóa con.
+    \item AES-256: Thực hiện 14 vòng mã hóa, yêu cầu 15 khóa con.
+\end{itemize}
+
+Trong mỗi vòng, khóa gốc được chia thành nhiều từ (words) 32-bit và thực hiện qua các phép toán. Quy trình mỗi vòng bao gồm bốn bước chính: \textbf{SubBytes}, \textbf{ShiftRows}, \textbf{MixColumns} và \textbf{AddRoundKey}. Những bước này nhằm loại bỏ sự tuyến tính liên quan đến việc có thể tìm ra mối quan hệ trực tiếp giữa các thành phần của khóa (hoặc mật khẩu) và kết quả mã hóa thông qua các phép toán tuyến tính. 
+\begin{enumerate}
+    \item \textbf{SubBytes}: Đây là một phép thay thế phi tuyến tính được thực hiện thông qua S-Box, một bảng thay thế dựa trên một thuật toán cụ thể, giúp tạo ra các giá trị ngẫu nhiên và phi tuyến tính. 
+    \item \textbf{ShiftRows}: Phép này dịch chuyển các dòng trong ma trận dữ liệu, tạo sự thay đổi không đều giữa các phần dữ liệu, từ đó làm giảm tính dự đoán của các bit. 
+    \item \textbf{MixColumns}: Thao tác này thực hiện trộn các cột trong ma trận, giúp làm phức tạp thêm quá trình mã hóa, không cho phép rút ra các mối quan hệ tuyến tính đơn giản giữa các byte của khối dữ liệu. 
+    \item \textbf{AddRoundKey}: Đây là phép toán đơn giản, nhưng việc thêm khóa vòng vào dữ liệu sau mỗi vòng mã hóa cũng giúp phá vỡ mọi mối liên hệ tuyến tính có thể có giữa dữ liệu ban đầu và kết quả mã hóa. 
+\end{enumerate}
+
+Tại vòng mã hóa cuối, tất cả các bước đều được thực hiện ngoại trừ MixColumns. 
+
+Điểm mạnh của AES trong bảo mật nằm ở sự kết hợp của các phép toán tuyến tính và không tuyến tính, cùng với sự thay đổi khóa trong mỗi vòng mã hóa, làm cho việc rút ra các mối quan hệ giữa dữ liệu và khóa trở nên vô cùng khó khăn.
+
+Sự kết hợp giữa 2 loại tính toán này khiến việc tấn công bằng các phương pháp phân tích tuyến tính (Linear cryptanalysis) trở nên không khả thi trong thời gian thực tế.
+
+\section{Giải mã ZIP}
+\label{section:2.3}
+Giải mã tệp ZIP được bảo vệ bằng mã hóa XOR hoặc AES đòi hỏi các phương pháp và mức độ bảo mật khác nhau tùy thuộc vào cơ chế mã hóa được sử dụng. 
+\subsection{Mã hóa XOR}
+\label{subsection:2.2.3}
+Quá trình giải mã tệp ZIP sử dụng XOR có thể được tóm tắt qua các bước cơ bản sau. Đầu tiên, tệp ZIP sẽ yêu cầu mật khẩu người dùng để tạo ra chuỗi khóa. Chuỗi khóa này được tạo ra từ việc kết hợp mật khẩu với một giá trị ban đầu (\verb|key0|), và có thể sử dụng các phép toán bổ sung như XOR để tạo ra hai khóa phụ (\verb|key1|, \verb|key2|).
+
+Tiếp theo, các giá trị byte của tệp mã hóa sẽ được XOR với các byte của chuỗi khóa, qua đó phục hồi lại dữ liệu gốc. Điều này cho phép phục hồi tệp ZIP mà không cần phải sử dụng thêm bất kỳ thông tin nào ngoài chuỗi khóa đã được sinh ra từ mật khẩu vì XOR là một phép đối xứng.
+
+\subsection{Mã hóa AES}
+\label{subsection:2.2.4}
+Về cơ bản, quy trình giải mã trong AES là quá trình đảo ngược các phép toán đã thực hiện trong quá trình mã hóa. Quá trình này bao gồm các bước sau:
+
+\begin{enumerate}
+    \item \textbf{AddRoundKey}: Bước đầu tiên trong giải mã là thực hiện phép toán XOR giữa dữ liệu mã hóa và khóa vòng hiện tại. Khóa vòng được tạo ra bằng cách áp dụng hàm mở rộng khóa từ khóa ban đầu.
+    
+    \item \textbf{InvShiftRows}: Phép đảo ngược của bước ShiftRows trong quá trình mã hóa. Trong mã hóa, ShiftRows dịch chuyển các dòng của ma trận dữ liệu (mỗi dòng sẽ được dịch chuyển một số vị trí nhất định). Trong giải mã, phép đảo ngược này sẽ dịch chuyển lại các dòng về vị trí ban đầu để khôi phục lại dữ liệu.
+    
+    \item \textbf{InvSubBytes}: Đây là bước đảo ngược của phép toán SubBytes, nơi các byte dữ liệu trong ma trận được thay thế bằng giá trị khác từ bảng thay thế (S-Box). Để giải mã, chúng ta sẽ tra cứu các giá trị ngược lại trong bảng thay thế để khôi phục lại các byte ban đầu.
+    
+    \item \textbf{InvMixColumns}: Đây là phép toán đảo ngược của MixColumns trong quá trình mã hóa. MixColumns là phép toán giúp trộn các cột trong ma trận dữ liệu, làm cho mỗi cột của ma trận dữ liệu trở nên phụ thuộc vào tất cả các byte của cột đó. Để giải mã, ta phải áp dụng một phép toán ngược lại, nhằm tách các byte ra khỏi mối quan hệ phức tạp đã tạo ra trong bước mã hóa.
+\end{enumerate}
+
+Số vòng trong quá trình thực hiện trong quá trình giải mã giống với thực hiện mã hóa. Trong vòng cuối cùng, bước InvMixColumns được bỏ qua, tương tự như cách mã hóa bỏ qua bước MixColumns ở vòng cuối.
+
+\section{Tổng kết}
+\label{section:2.3}
+Việc tấn công vào thuật toán AES thông qua phương pháp phân tích tuyến tính không khả thi trong thực tế, bởi vì cấu trúc của AES được thiết kế để loại bỏ mối liên hệ tuyến tính giữa dữ liệu và khóa mã hóa. Cụ thể, các bước mã hóa phi tuyến như SubBytes, kết hợp với các phép hoán vị phức tạp như ShiftRows và MixColumns, đã tạo ra sự biến đổi dữ liệu không thể dự đoán được theo bất kỳ mô hình tuyến tính nào. Điều này khiến phân tích tuyến tính không đủ khả năng để khai thác lỗ hổng trong thiết kế của AES.
+
+Thay vì sử dụng phân tích tuyến tính, một cách tiếp cận thực tế hơn để giải mã tệp ZIP mã hóa AES là xây dựng không gian mật khẩu khả dĩ và thử từng mật khẩu trong danh sách này. Việc xây dựng không gian mật khẩu cần dựa trên các đặc điểm thực tế của mật khẩu mà người dùng có thể sử dụng, như độ dài, ký tự phổ biến, hoặc các mẫu mật khẩu thông thường. Quy trình thử mật khẩu sẽ được triển khai như sau:
+
+Trước tiên, từ danh sách mật khẩu đã xây dựng, từng mật khẩu sẽ được sử dụng để tái tạo khóa AES thông qua quá trình mở rộng khóa tiêu chuẩn. Sau đó, khóa được áp dụng để giải mã tệp ZIP. Dữ liệu giải mã được kiểm tra dựa trên cấu trúc và thông tin của tệp, chẳng hạn như header tệp ZIP hoặc mã kiểm tra CRC. Nếu dữ liệu giải mã hợp lệ, có thể xác nhận mật khẩu đã được tìm thấy; nếu không, quá trình sẽ tiếp tục với mật khẩu tiếp theo trong danh sách.
+
+Việc triển khai phương pháp này phụ thuộc vào sự tối ưu hóa trong việc tạo và thử mật khẩu, nhằm giảm thời gian xử lý và tăng khả năng thành công. Một yếu tố quan trọng là tính hiệu quả của thuật toán kiểm tra tính hợp lệ của dữ liệu sau khi giải mã, bởi điều này ảnh hưởng trực tiếp đến tốc độ của toàn bộ quy trình.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}

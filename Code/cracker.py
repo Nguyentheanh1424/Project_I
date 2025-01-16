@@ -18,7 +18,7 @@ class Cracker:
         self.total_password = Value('i', 0)
         self.passwords_tried = Value('i', 0)
         self.index_queue = None
-        self.batch_size = 2500
+        self.batch_size = 1000
         self.start_time = None
 
     def turn_stop_flag(self, flag):

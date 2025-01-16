@@ -1,0 +1,143 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+\section{Mục tiêu và phương án kiểm thử}
+
+Quá trình kiểm thử nhằm đánh giá các yếu tố cốt lõi của chương trình, bao gồm hiệu suất, tính ổn định và độ chính xác trong việc thực hiện các phương pháp tấn công mật khẩu trên các tệp ZIP có cấu trúc và dung lượng khác nhau. Thông qua đó, kiểm thử cung cấp dữ liệu định lượng và định tính để phân tích khả năng đáp ứng các tiêu chí thiết kế, đảm bảo chương trình hoạt động đúng như kỳ vọng trong các kịch bản thực tế.
+
+Các mục tiêu cụ thể bao gồm:
+
+\textbf{Hiệu suất: }Xác định tốc độ thực thi của các phương pháp tấn công mật khẩu trên từng loại tệp ZIP, bao gồm việc sử dụng hiệu quả tài nguyên phần cứng như CPU và tối ưu hóa trong môi trường đa tiến trình.
+
+\textbf{Tính ổn định: }Kiểm tra khả năng duy trì hoạt động liên tục của chương trình, bao gồm xử lý lỗi, phục hồi từ trạng thái tạm dừng và đảm bảo không xảy ra tình trạng treo hoặc deadlock trong quá trình thực thi.
+
+\textbf{Độ chính xác: }Đảm bảo chương trình luôn tìm ra mật khẩu chính xác của tệp ZIP, bất kể độ phức tạp của mật khẩu hoặc kích thước danh sách từ điển.
+
+Để đảm bảo các mục tiêu này, kiểm thử sẽ được tiến hành trên bốn tệp ZIP với các đặc điểm khác nhau, bao gồm:
+
+\textbf{Tệp ZIP 0} (1KB): Chứa một tệp duy nhất với dung lượng rất nhỏ, được thiết kế để kiểm tra khả năng hoạt động của chương trình trong điều kiện đơn giản nhất. Đây là đơn vị kiểm thử cơ bản nhằm loại trừ các yếu tố gây nhiễu từ tài nguyên hệ thống hoặc cấu trúc phức tạp của tệp.
+
+\textbf{Tệp ZIP 1} (100KB): Mô phỏng tình huống thực tế với một tệp đơn lẻ có kích thước nhỏ, thường gặp trong các trường hợp sử dụng cá nhân hoặc học thuật.
+
+\textbf{Tệp ZIP 2} (200KB, 300KB, 500KB): Đại diện cho các tệp có cấu trúc phức tạp hơn, bao gồm nhiều tệp con với kích thước trung bình, thường xuất hiện trong các môi trường doanh nghiệp hoặc lưu trữ tài liệu quan trọng.
+
+\textbf{Tệp ZIP 3} (1000KB): Mô phỏng trường hợp xử lý dữ liệu khối lượng lớn, đòi hỏi chương trình phải tối ưu hóa khả năng quản lý tài nguyên và đảm bảo hiệu suất trong các điều kiện tải nặng.
+
+Việc kiểm thử được tổ chức một cách có hệ thống nhằm phân tích khả năng của chương trình trong việc đáp ứng các yêu cầu hiệu năng và độ tin cậy. Kết quả kiểm thử sẽ đóng vai trò là cơ sở để đánh giá và cải thiện chương trình, từ đó đảm bảo rằng nó có thể áp dụng hiệu quả trong các tình huống thực tế, như khôi phục mật khẩu cho các tệp ZIP bị quên hoặc thất lạc.
+
+\section{Kết quả kiểm thử}
+
+Quá trình thực hiện trên không gian mật khẩu bao gồm chữ thường và số, độ dài mật khẩu tối đa 3 ký tự và mật khẩu chính xác được đặt là tổ hợp cuối cùng được sinh. Máy tính thực hiện kiểm thử sử dụng CPU AMD Ryzen 7 5800H 8 Cores 16 Threads. Kết quả kiểm thử được trình bày chi tiết dưới đây.
+
+ 
+\subsection{Kết quả kiểm thử trên tệp ZIP 0 (1KB)} 
+
+Tệp ZIP 0 được sử dụng để kiểm tra hiệu năng cơ bản và xác minh tính chính xác của chương trình trong điều kiện đơn giản. Bảng dưới đây trình bày thời gian hoàn thành (đơn vị: giây) của các phương pháp Brute Force và Dictionary Attack với số lượng tiến trình khác nhau.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|}
+    \toprule
+    Số tiến trình & BruteForce & DictionaryAttack \\
+    \midrule
+    1 & 53.23 & 52.01 \\ \hline 
+    2 & 43.07 & 42.14 \\ \hline 
+    3 & 25.02 & 23.99 \\ \hline 
+    4 & 22.32 & 21.71 \\ \hline 
+    5 & 17.33 & 16.53 \\ \hline 
+    6 & 16.47 & 15.35 \\ \hline 
+    7 & 13.97 & 12.24 \\
+    8 & 12.93 & 11.80 \\
+    \bottomrule \hline
+    \end{tabular}
+    \caption{Thời gian kiểm thử trên tệp ZIP 0}
+    \label{tab:comparison}
+\end{table}
+
+Kết quả cho thấy thời gian thực hiện giảm đáng kể khi tăng số lượng tiến trình, đặc biệt từ 1 đến 4 tiến trình. Tuy nhiên, sau 4 tiến trình, tốc độ cải thiện giảm dần, cho thấy dấu hiệu bão hòa trong hiệu suất đa luồng.
+
+\subsection{Kết quả kiểm thử trên tệp ZIP 1 (100KB)} 
+
+Bảng sau đây trình bày thời gian hoàn thành kiểm thử với tệp ZIP 1 chứa một tệp đơn lẻ có dung lượng 100KB.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \toprule
+        \textbf{Số tiến trình} & \textbf{BruteForce} & \textbf{DictionaryAttack} \\
+        \midrule
+        1 & 53.25 & 52.12 \\ \hline 
+        4 & 23.44 & 21.88 \\
+        8 & 14.18 & 12.28 \\
+        \bottomrule \hline
+    \end{tabular}
+    \caption{Thời gian kiểm thử trên tệp ZIP 1}
+    \label{tab:test1}
+\end{table}
+
+So với tệp ZIP 0, thời gian xử lý của tệp ZIP 1 tăng nhẹ khi chỉ sử dụng một tiến trình. Tuy nhiên, khi tăng số tiến trình, thời gian xử lý giảm mạnh, khẳng định tính hiệu quả của việc áp dụng đa luồng.
+
+\subsection{Kết quả kiểm thử trên tệp ZIP 2 (200KB, 300KB, 500KB)} 
+
+Đây là trường hợp tệp ZIP phức tạp hơn, bao gồm ba tệp con có kích thước khác nhau. Kết quả kiểm thử được trình bày dưới đây.
+
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \toprule
+        \textbf{Số tiến trình} & \textbf{BruteForce} & \textbf{DictionaryAttack} \\
+        \midrule
+        1 & 55.45& 54.53\\ \hline 
+        4 & 26.62& 25.51\\
+        8 & 17.51& 15.92\\
+        \bottomrule \hline
+    \end{tabular}
+    \caption{Thời gian kiểm thử trên tệp ZIP 2}
+    \label{tab:test1}
+\end{table}
+
+Dữ liệu cho thấy thời gian xử lý tăng lên đáng kể khi kích thước tổng của tệp ZIP tăng. Tốc độ xử lý được cải thiện đáng kể với đa luồng, nhưng sự bão hòa hiệu suất vẫn xuất hiện ở số lượng lớn tiến trình.
+
+\subsection{Kết quả kiểm thử trên tệp ZIP 3 (1000KB)} 
+
+Kịch bản này mô phỏng việc xử lý dữ liệu lớn. Bảng dưới đây ghi nhận thời gian hoàn thành kiểm thử.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \toprule
+        \textbf{Số tiến trình} & \textbf{BruteForce} & \textbf{DictionaryAttack} \\
+        \midrule
+        1 & 60.43& 59.53\\ \hline 
+        4 & 31.49& 30.49\\
+        8 & 22.96& 21.95\\
+        \bottomrule \hline
+    \end{tabular}
+    \caption{Thời gian kiểm thử trên tệp ZIP 3}
+    \label{tab:test1}
+\end{table}
+
+Với tệp ZIP dung lượng lớn, thời gian xử lý tăng đáng kể, đặc biệt khi sử dụng ít tiến trình. Mặc dù vậy, việc tối ưu hóa đa luồng vẫn giúp cải thiện đáng kể hiệu suất, giảm gần ba lần thời gian thực hiện khi sử dụng 8 tiến trình so với 1 tiến trình.
+
+\section{Đánh giá}
+\subsection{Độ chính xác}
+
+Chương trình đã đạt độ chính xác cao với cả hai phương pháp trong quá trình kiểm thử. Ở tất cả các kịch bản, chương trình đều tìm ra mật khẩu của tệp ZIP, kể cả với độ phức tạp của mật khẩu tăng lên hoặc danh sách từ điển có dung lượng lớn. Điều này khẳng định tính đúng đắn và hiệu quả trong thiết kế thuật toán.
+
+\subsection{Tốc độ thực thi và hiệu quả của đa tiến trình}
+Trong hai chế độ, Brute Force yêu cầu tính toán liên tục để sinh các tổ hợp mới, trong khi Dictionary Attack chỉ cần đọc các mật khẩu sẵn có từ danh sách. Nên điều này làm tăng chi phí xử lý của Brute Force so với Dictionary Attack, đặc biệt với mật khẩu dài và bộ ký tự lớn.
+
+Tốc độ thực thi đã được cải thiện đáng kể khi áp dụng đa tiến trình xử lý song song. Kết quả kiểm thử cho thấy thời gian thực hiện giảm mạnh khi số lượng tiến trình tăng từ 1 đến 4, với tốc độ giảm trung bình gần 50\% mỗi lần số tiến trình tăng gấp đôi. Tuy nhiên, khi số tiến trình tăng lên từ 4 đến 8, tốc độ cải thiện giảm dần và xuất hiện hiện tượng bão hòa hiệu suất.
+
+\subsection{Giải thích hiện tượng bão hòa}
+
+Hiện tượng bão hòa xảy ra khi tăng số lượng tiến trình không còn đem lại cải thiện đáng kể về tốc độ thực thi. Nguyên nhân chính bao gồm:
+
+\textbf{Thực hiện hai vòng kiểm tra:} Vòng kiểm tra cuối thực hiện giải mã và giải nén một tệp có kích thước nhỏ nhất trong tệp ZIP nhằm đảm bảo mật khẩu hoàn toàn chính xác. Quá trình này không được áp dụng xử lý song song nên tốc độ không giảm khi tăng số tiến trình sử dụng mà phụ thuộc hoàn toàn vào kích thước của tệp đó.
+
+\textbf{Chi phí đồng bộ hóa: }Khi số tiến trình tăng, chi phí quản lý và đồng bộ hóa giữa các tiến trình cũng tăng, đặc biệt với các hàng đợi chia sẻ trong chương trình.
+
+\textbf{Tăng độ phức tạp xử lý dữ liệu: }Các tiến trình phải liên tục kiểm tra trạng thái ngắt và tạm dừng , điều này làm tăng thêm chi phí tính toán.
+
+\end{document}

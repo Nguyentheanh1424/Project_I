@@ -1,0 +1,24 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+\section{Kết luận}
+Báo cáo đã hoàn thành việc nghiên cứu toàn diện về chương trình tấn công mật khẩu trên các tệp ZIP, từ cơ sở lý thuyết đến triển khai và kiểm thử thực tế. Mở đầu, các phương pháp tấn công mật khẩu như Brute Force và Dictionary Attack được phân tích chi tiết, làm rõ ưu điểm, hạn chế, và tính ứng dụng. Tiếp đó, hệ thống kiểm thử được thiết kế khoa học với các tệp ZIP có kích thước và cấu trúc đa dạng, đảm bảo việc đánh giá toàn diện hiệu năng, độ chính xác và tính ổn định của chương trình.
+
+Kết quả kiểm thử cho thấy chương trình đạt độ chính xác cao, xử lý hiệu quả trong hầu hết các tình huống kiểm thử, đặc biệt khi sử dụng tối ưu hóa đa tiến trình. Thời gian xử lý được rút ngắn đáng kể khi tăng số lượng tiến trình, tuy nhiên hiện tượng bão hòa hiệu suất xuất hiện khi vượt quá 4 tiến trình, phản ánh những hạn chế trong việc tối ưu hóa đồng bộ và xử lý song song. Sự so sánh giữa Brute Force và Dictionary Attack đã làm rõ rằng, trong khi Dictionary Attack hiệu quả hơn về tốc độ, Brute Force vẫn giữ vai trò quan trọng trong việc xử lý các trường hợp không có dữ liệu từ điển phù hợp.
+
+
+\section{Hướng phát triển}
+
+Dựa trên kết quả kiểm thử, báo cáo đã đưa ra những kết luận quan trọng về khả năng và giới hạn của chương trình tấn công mật khẩu trên các tệp ZIP. Chương trình đã chứng minh tính hiệu quả và độ chính xác cao khi xử lý các kịch bản kiểm thử với nhiều loại tệp ZIP có cấu trúc và kích thước khác nhau. Tuy nhiên, hiện tượng bão hòa hiệu suất khi tăng số lượng tiến trình và thời gian xử lý lớn với các mật khẩu phức tạp đã chỉ ra những điểm cần cải thiện. Để nâng cao hiệu suất và mở rộng khả năng ứng dụng, một số định hướng phát triển quan trọng đã được đề xuất.
+
+Thứ nhất, việc xây dựng chiến lược tối ưu hóa xử lý đa tiến trình là một giải pháp tiềm năng. Bằng cách giảm thiểu chi phí đồng bộ hóa và khai thác triệt để tài nguyên phần cứng, chương trình có thể duy trì hiệu suất cao ngay cả khi xử lý dữ liệu lớn.
+
+Thứ hai, tích hợp GPU vào hệ thống là một hướng đi hứa hẹn nhằm tăng tốc độ xử lý. GPU, với khả năng thực thi hàng ngàn luồng song song, có thể giảm đáng kể thời gian thực hiện, nhất là trong các kịch bản yêu cầu xử lý một không gian khóa rộng lớn. Việc tận dụng sức mạnh tính toán của GPU không chỉ cải thiện tốc độ mà còn giảm áp lực lên CPU, từ đó tối ưu hóa toàn bộ hệ thống.
+
+Thứ ba, việc tăng cường thuật toán quản lý tài nguyên sẽ giúp giảm thiểu hiện tượng bão hòa hiệu suất, đặc biệt với các kịch bản xử lý dữ liệu lớn hoặc đòi hỏi thời gian dài. Bằng cách tối ưu hóa cách thức phân bổ và sử dụng tài nguyên, chương trình có thể đạt hiệu quả tốt hơn trong việc sử dụng đa tiến trình mà không gặp phải các giới hạn hiện tại.
+
+Cuối cùng, việc nghiên cứu thêm các phương pháp kiểm thử trên các tệp ZIP có cấu trúc phức tạp hơn sẽ giúp đánh giá toàn diện hơn hiệu suất của chương trình. Điều này đảm bảo rằng chương trình không chỉ hiệu quả trong môi trường thử nghiệm mà còn có thể đáp ứng được các yêu cầu thực tế ngày càng đa dạng.
+
+Những định hướng này không chỉ nhằm khắc phục các hạn chế hiện tại mà còn mở ra cơ hội để chương trình trở thành một công cụ mạnh mẽ, linh hoạt và có tính ứng dụng cao trong nhiều tình huống thực tế khác nhau. Qua đó, chương trình có thể tiếp tục phát triển và đáp ứng tốt hơn các yêu cầu của người dùng trong tương lai.
+
+\end{document}

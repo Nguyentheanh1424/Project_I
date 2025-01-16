@@ -17,3 +17,22 @@ max_length = 3
 charset = "abcdefghijklmnopqrstuvwxyz0123456789"
 
 generate_passwords(output_file, min_length, max_length, charset)
+
+
+# import os
+#
+# # Đường dẫn tệp rác
+# file_path = "test_file_1000KB.txt"
+#
+# # Kích thước tệp mong muốn (1GB = 1024 * 1024 * 1024 bytes)
+# file_size = 1 * 1024 * 1000 * 1000
+#
+# # Tạo tệp với dữ liệu rác
+# with open(file_path, "wb") as f:
+#     chunk_size = 1024 * 1024  # 1MB mỗi lần ghi
+#     written = 0
+#     while written < file_size:
+#         f.write(os.urandom(chunk_size))  # Ghi dữ liệu ngẫu nhiên
+#         written += chunk_size
+#
+# print(f"Tệp rác {file_path} đã được tạo với kích thước 1GB.")

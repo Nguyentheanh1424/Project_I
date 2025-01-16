@@ -1,0 +1,67 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Với chiến lược thám mã đã đề ra, nội dung của chương 3 đi sâu vào các công cụ và thư viện Python cụ thể được sử dụng để hiện thực hóa giải pháp này. Đặc biệt kể đến các thư viện như pyzipper, multiprocessing, threading, tkinter và psutil, đóng vai trò quan trọng trong việc tối ưu hóa hiệu suất xử lý và nâng cao trải nghiệm người dùng. Chương này sẽ phân tích cách thức hoạt động của từng thư viện và ứng dụng thực tế của chúng trong chương trình khôi phục mật khẩu ZIP.
+
+\section{Thư viện pyzipper}
+\label{section:3.1}
+
+Pyzipper là một thư viện mở rộng của Python’s zipfile, cung cấp các tính năng mã hóa và giải mã hóa nâng cao cho các tệp ZIP. Thư viện hỗ trợ mã hóa AES với các độ dài khóa 128, 192, và 256 bit, giúp đảm bảo tính bảo mật cao cho các tệp ZIP, điều mà thư viện zipfile không hỗ trợ.
+
+Thư viện này còn được thiết kế để tương thích với các công cụ nén phổ biến khác như 7-Zip và WinZip, giúp người dùng dễ dàng xử lý tệp ZIP đã được mã hóa trên nhiều nền tảng mà không gặp phải các vấn đề tương thích. Với giao diện lập trình (API) giống với zipfile, pyzipper cho phép các lập trình viên dễ dàng tích hợp vào các dự án hiện có mà không gặp phải khó khăn trong việc học lại các cú pháp hay phương thức mới.
+
+Tuy nhiên, mặc dù pyzipper là một công cụ mạnh mẽ, thư viện này đã ít được duy trì trong vài năm qua và không nhận được cập nhật mới thường xuyên. Điều này đặt ra vấn đề về sự bền vững khi lựa chọn pyzipper cho các dự án dài hạn. Mặc dù đã có tuổi đời khoảng 6 năm nhưng pyzipper vẫn được sử dụng rộng rãi trong cộng đồng Python nhờ vào tính năng mã hóa AES mạnh mẽ mà nó cung cấp.
+
+Trong chương trình sử dụng thư viện pyzipper, ba hàm chủ yếu được triển khai để thao tác với các tệp ZIP mã hóa AES, bao gồm \verb|setpassword()|, \verb|testzip()|, và \verb|extract()|. Những hàm này đóng vai trò quan trọng trong việc kiểm tra và giải nén các tệp ZIP bảo vệ bằng mật khẩu, đồng thời đảm bảo tính toàn vẹn và bảo mật của dữ liệu. 
+
+Hàm \verb|setpassword()| trong pyzipper được sử dụng để cung cấp mật khẩu cho việc mở tệp ZIP. Phục vụ thực hiện các thao tác tiếp theo như kiểm tra mật khẩu đúng hay sai, và giải nén dữ liệu. Mặc dù \verb|setpassword()| chỉ là một phương thức đơn giản, nhưng nó là bước không thể thiếu trong quá trình làm việc với các tệp bảo vệ bằng mật khẩu.
+
+Sau khi thiết lập mật khẩu thông qua \verb|setpassword()|, một trong những phương thức quan trọng trong việc kiểm tra tính toàn vẹn của tệp ZIP là hàm \verb|testzip()|. Phương thức này được sử dụng để xác định từng tệp trong kho lưu trữ ZIP có bị hỏng hay không thông qua việc kiểm tra mã CRC-32. Nếu mật khẩu đã được cung cấp đúng, việc kiểm tra sẽ thành công và trả về kết quả là \verb|None|. Ngược lại, nếu mật khẩu sai hoặc tệp bị hỏng, chương trình sẽ báo lỗi hoặc trả về tên tệp bị lỗi. Hàm \verb|testzip()| là một công cụ mạnh mẽ giúp xác minh tính toàn vẹn của dữ liệu trong tệp ZIP trước khi tiếp tục giải nén.
+
+
+Hàm \verb|extract()| trong pyzipper cho phép giải nén một thành phần (tệp) từ kho lưu trữ ZIP đã được mã hóa. Sau khi mật khẩu được xác thực và tính toàn vẹn của tệp được kiểm tra thông qua \verb|testzip()|, có thể sử dụng hàm này để giải nén các tệp vào thư mục đích.  Với việc hỗ trợ mã hóa AES, \verb|extract()| cũng đảm bảo rằng chỉ khi mật khẩu đúng, quá trình giải mã và giải nén mới diễn ra thành công.
+
+Tổng kết lại, thư viện pyzipper là một công cụ giúp thao tác với tệp ZIP mã hóa AES, xác thực mật khẩu, kiểm tra tính toàn vẹn của tệp, và giải nén dữ liệu một cách hiệu quả và an toàn.
+
+
+\section{Thư viện multiprocessing}
+\label{section:3.2}
+
+Trong Python, thư viện \verb|multiprocessing| là một công cụ mạnh mẽ giúp thực hiện các tác vụ song song, khai thác khả năng xử lý đa lõi của các bộ vi xử lý hiện đại. Đây là một phần quan trọng của Python Standard Library, giúp tối ưu hóa các chương trình xử lý tính toán nặng hoặc các tác vụ cần thực hiện đồng thời. Thư viện này hỗ trợ việc chia nhỏ các công việc thành nhiều tiến trình (process), cho phép chương trình xử lý các công việc một cách hiệu quả hơn, giảm thời gian thực thi tổng thể.
+
+Một trong những lợi thế chính của \verb|multiprocessing| là nó giúp giải quyết vấn đề hạn chế của đa luồng trong Python. Do Global Interpreter Lock (GIL) trong Python, các tiến trình đồng thời không thể tận dụng tốt khả năng đa lõi khi sử dụng thư viện \verb|threading|. Tuy nhiên, \verb|multiprocessing| khởi động các tiến trình riêng biệt, mỗi tiến trình có bộ nhớ riêng biệt, giúp vượt qua hạn chế này và tận dụng tối đa sức mạnh của hệ thống đa lõi.
+
+Trong chương trình sử dụng thư viện \verb|multiprocessing|, có hai hàm quan trọng cần được đề cập là \verb|Process()|, và \verb|Queue()|. Những hàm này đóng vai trò quan trọng trong việc quản lý các tiến trình và trao đổi dữ liệu giữa các tiến trình.
+
+Hàm \verb|Process()| cho phép tạo và quản lý các tiến trình riêng biệt. Mỗi tiến trình được khởi tạo và thực hiện một công việc độc lập, không chia sẻ bộ nhớ với các tiến trình khác, điều này giúp tránh được vấn đề xung đột dữ liệu khi chạy song song.
+
+Hàm \verb|Queue()| giúp trao đổi dữ liệu giữa các tiến trình. Dữ liệu được đưa vào hàng đợi chung và có thể được các tiến trình khác lấy ra để xử lý. Đây là một cách hiệu quả để giao tiếp và đồng bộ hóa các tiến trình, giúp chúng có thể chia sẻ thông tin và hợp tác trong quá trình làm việc.
+
+Tổng kết lại, thư viện \verb|multiprocessing| là một công cụ hữu ích để thực hiện đa tiến trình trong Python, giải quyết được vấn đề GIL của xử lý đa luồng, giúp tăng hiệu quả và giảm thời gian thực thi chương trình. Thư viện này đặc biệt phù hợp với các ứng dụng cần xử lý tính toán song song hoặc các tác vụ yêu cầu độ trễ thấp và hiệu suất cao.
+
+\section{Thư viện threading}
+\label{section:3.3}
+
+Thư viện \verb|threading| trong Python là một công cụ mạnh mẽ giúp thực hiện các tác vụ đồng thời trong một chương trình, mà không làm gián đoạn các hoạt động khác, đặc biệt hữu ích trong các ứng dụng giao diện người dùng (GUI) hoặc các ứng dụng yêu cầu xử lý nhiều tác vụ vào-ra song song. Thư viện này cho phép tạo và quản lý các luồng, mỗi luồng có thể thực hiện một công việc độc lập nhưng cùng tồn tại trong một chương trình, giúp tối ưu hóa hiệu suất và trải nghiệm với chương trình.
+
+Trong chương trình xây dựng, thư viện \verb|threading| có hai tác vụ chủ yếu được thực hiện trong các luồng riêng biệt: chạy quá trình tấn công mật khẩu và cập nhật tiến trình của giao diện người dùng. Việc sử dụng các luồng này không chỉ giúp giảm thiểu độ trễ mà còn duy trì tính mượt mà cho giao diện người dùng trong khi các công việc nặng đang được thực thi.
+
+\section{Thư viện tkinter} 
+\label{section:3.4}
+
+Thư viện \verb|tkinter| là một công cụ phổ biến trong Python, dùng để xây dựng các ứng dụng giao diện đồ họa người dùng (GUI). Với khả năng cung cấp các thành phần giao diện cơ bản như cửa sổ, nhãn, nút bấm, ô nhập liệu và thanh tiến trình, \verb|tkinter| cho phép phát triển các ứng dụng dễ dàng và hiệu quả mà không cần phải cài đặt thêm phần mềm bên ngoài. Điều này giúp tiết kiệm nhiều thời gian và công sức cho lập trình viên. Đồng thời, \verb|tkinter| còn có một cộng đồng lớn và tài liệu phong phú, hỗ trợ tốt cho việc phát triển ứng dụng.
+
+\section{Thư viện psutil} 
+\label{section:3.5}
+
+Thư viện \verb|psutil| (Python System and Process Utilities) là một công cụ mạnh mẽ trong việc truy xuất và quản lý thông tin về các tiến trình đang chạy cũng như tài nguyên hệ thống. \verb|psutil| cung cấp các API hữu ích để giám sát việc sử dụng CPU, bộ nhớ, và các tài nguyên khác của hệ thống, đồng thời cho phép lập trình viên kiểm soát tiến trình và phân phối tài nguyên hiệu quả.
+
+Thư viện \verb|psutil| có những ứng dụng quan trọng, đặc biệt là trong việc tối ưu hóa việc sử dụng tài nguyên CPU khi thực hiện các tác vụ xử lý song song. Các tính năng chính của \verb|psutil| được sử dụng bao gồm:
+
+\textbf{Quản lý CPU Affinity:} Thông qua phương thức \verb|cpu_affinity()| của lớp \verb|psutil.Process|, chương trình có thể gán các tiến trình đang cho các lõi CPU cụ thể. Điều này giúp tận dụng tối đa tài nguyên của hệ thống, đặc biệt khi hệ thống có nhiều lõi xử lý, nâng cao hiệu suất của các tác vụ song song.
+
+\textbf{Giám sát tài nguyên:} Thư viện này cung cấp khả năng theo dõi việc sử dụng tài nguyên của hệ thống và các tiến trình, giúp đảm bảo rằng không có tiến trình nào chiếm dụng quá nhiều tài nguyên, điều này rất quan trọng trong các ứng dụng yêu cầu hiệu suất cao như ứng dụng tấn công mật khẩu.
+
+Ưu điểm của thư viện \verb|psutil| là khả năng cung cấp thông tin chi tiết về hệ thống và các tiến trình đang chạy, giúp lập trình viên tối ưu hóa việc sử dụng tài nguyên và kiểm soát hiệu suất. \verb|psutil| cũng hỗ trợ nhiều nền tảng, từ Windows đến Linux và macOS, giúp tăng tính linh hoạt và tính tương thích cho ứng dụng. Việc sử dụng thư viện này đặc biệt quan trọng trong các ứng dụng cần xử lý song song hoặc tính toán nặng, vì nó giúp đảm bảo hệ thống vẫn hoạt động ổn định trong suốt quá trình thực thi.
+
+\end{document}

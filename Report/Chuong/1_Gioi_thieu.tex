@@ -1,0 +1,31 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+\section{Đặt vấn đề}
+\label{section:1.1}
+Trong thời công nghệ phát triển, việc số hóa dữ liệu để lưu trữ và chia sẻ ngày càng phổ biến, đặc biệt với việc sử dụng các định dạng nén nhằm làm giảm độ lớn của dữ liệu và tối ưu thời gian chia sẻ, một trong số các định dạng đó chính là ZIP. Để bảo vệ những dữ liệu quan trọng, người dùng còn có thể lựa chọn sử dụng mật khẩu để mã hóa tệp ZIP. Tuy nhiên, việc quên mất mật khẩu sau khi tạo có thể dẫn tới những tình huống khó khăn khi cần truy cập vào dữ liệu.
+
+Vì vậy, việc khôi phục mật khẩu trở thành một vấn đề thiết thực, đặc biệt trong những trường hợp khẩn cấp hoặc khi người dùng không còn khả năng cung cấp được mật khẩu chính xác. Đề tài này được chọn nhằm mục đích xây dựng một công cụ khôi phục mật khẩu của các tệp ZIP một cách hiệu quả và an toàn.
+
+
+\section{Mục tiêu và phạm vi đề tài}
+\label{section:1.2}
+Mục tiêu chính của đề tài là phát triển một chương trình khôi phục mật khẩu cho các tệp ZIP, phát triển chương trình tập trung vào hai phương pháp chính là \textbf{Brute Force Attack} và \textbf{Dictionary Attack}. Đề tài chỉ tập trung vào việc khôi phục mật khẩu cho tệp ZIP mã hóa bằng thuật toán AES. Các định dạng tệp nén và mã hóa khác không nằm trong phạm vi nghiên cứu. 
+
+\section{Định hướng giải pháp}
+\label{section:1.3}
+Một trong những khó khăn lớn nhất của bài toán là không gian mật khẩu lớn, đặc biệt khi mật khẩu được mã hóa bằng thuật toán mạnh như AES. Điều này làm tăng đáng kể thời gian xử lý và yêu cầu cao về tài nguyên tính toán. Để khắc phục những khó khăn, cần tối ưu hóa hiệu suất và tận dụng được toàn bộ tài nguyên phần cứng khi kiểm tra nhiều tổ hợp mật khẩu, những thuật toán sử dụng phải tối ưu để kết hợp với việc truyển khai xử lý song song đa luồng và đa tiến trình.
+
+\section{Bố cục đồ án}
+\label{section:1.4}
+Phần còn lại của báo cáo này được tổ chức như sau. 
+
+\textbf{Chương 2}, trình bày cơ sở lý thuyết của đề tài, bao gồm các khái niệm liên quan đến định dạng tệp ZIP, cách mã hóa và bảo mật dữ liệu bằng thuật toán AES, cũng như các phương pháp dò mật khẩu phổ biến như Brute Force Attack và Dictionary Attack. Đồng thời, giới thiệu về khái niệm xử lý song song, đặc biệt là các kỹ thuật đa luồng và đa tiến trình khi thực thi chương trình. Những lý thuyết này cung cấp nền tảng quan trọng để xây dựng và phát triển công cụ trong đề tài.
+
+\textbf{Chương 3}, tập trung vào phân tích các thư viện và công nghệ được sử dụng trong chương trình. Với nội dung như sau: Làm việc với tệp ZIP thông qua thư viện \verb|pyzipper|, ứng dụng của \verb|multiprocessing| và \verb|threading| trong xử lý song song, cách sử dụng thư viện \verb|tkinter| để xây dựng giao diện đồ họa trực quan cho chương trình. Bên cạnh đó, chương này cũng thảo luận về thư viện \verb|psutil| với việc quản lý tài nguyên của hệ thông. Những nội dung này cho thấy vai trò và sự cần thiết của các thư viện trong việc hiện thực hóa giải pháp.
+
+\textbf{Chương 4}, mô tả chi tiết về chương trình được xây dựng trong đề tài. Chương này trình bày kiến trúc tổng quan của chương trình, bao gồm các thành phần chính như giao diện người dùng, hệ thống quản lý tiến trình và các phương thức tấn công mật khẩu. Cuối cùng, chương này cũng mô tả các tính năng chính như Brute Force Attack, Dictionary Attack và các cơ chế hỗ trợ giao diện như hiển thị trạng thái và tiến trình thực thi.
+
+\textbf{Chương 5}, tập trung đánh giá hiệu năng của chương trình dựa trên các dữ liệu thực tế. Chương này so sánh thời gian thực thi giữa các phương pháp tấn công trong các trường hợp mật khẩu có độ dài và độ phức tạp khác nhau. Bên cạnh đó, hiệu suất của chương trình khi sử dụng xử lý song song cũng được phân tích chi tiết thông qua các biểu đồ và số liệu thực nghiệm. Những kết quả đạt được không chỉ giúp đánh giá khả năng của chương trình mà còn chỉ ra những hạn chế, mở ra hướng cải thiện trong tương lai.
+
+Bố cục này đảm bảo nội dung được trình bày một cách logic, cung cấp cái nhìn toàn diện về cơ sở lý thuyết, công cụ hỗ trợ, quá trình xây dựng và hiệu quả của chương trình.
+\end{document}
