@@ -158,7 +158,7 @@ class Cracker:
         try:
             # Set CPU affinity for better performance
             process = psutil.Process()
-            process.cpu_affinity([self.settings["number_workers"]])
+            process.cpu_affinity([self.settings["number_workers"] + 1])
 
             current_index = self.settings["current_index"]
 
@@ -391,7 +391,7 @@ class Cracker:
         """Process that produces passwords from wordlist."""
         try:
             process = psutil.Process()
-            process.cpu_affinity([self.settings["number_workers"]])
+            process.cpu_affinity([self.settings["number_workers"] + 1])
 
             batch: List[str] = []
             batch_size = 0
