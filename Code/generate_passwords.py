@@ -14,7 +14,7 @@ def generate_passwords(output_file, min_length=6, max_length=8, charset="abcdefg
 output_file = "password_dictionary.txt"
 min_length = 1
 max_length = 3
-charset = "abcdefghijklmnopqrstuvwxyz0123456789"
+charset = "012345678abcdefghijklmnopqrstuvwxyz"
 
 generate_passwords(output_file, min_length, max_length, charset)
 

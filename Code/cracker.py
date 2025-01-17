@@ -1,142 +1,268 @@
 import os
 import queue
 import time
+from dataclasses import dataclass
 from multiprocessing import Process, Manager, Value, Queue
 from tkinter import messagebox
 import psutil
 import pyzipper
+from typing import List, Tuple, Optional, Dict, Any
 from progress_manager import ProgressManager
 
+
+@dataclass
+class CrackerSettings:
+    zip_path: str
+    mode: str
+    number_workers: int
+    current_index: int = 0
+    charset: str = ""
+    max_length: int = 0
+    current_length: int = 1
+    wordlist_path: str = ""
+    passwords_tried: int = 0
+
+
 class Cracker:
+    BATCH_SIZE = 1000
+    QUEUE_MAX_SIZE = 30000
+
     def __init__(self):
         self.progress_manager = ProgressManager()
-        self.settings = self.progress_manager.settings
-        self.smallest_file = None
+        self.settings: Dict[str, Any] = self.progress_manager.settings
+        self.smallest_file: Optional[str] = None
+
+        # Shared multiprocessing values
         self.pause_flag = Value('i', 0)
         self.stop_flag = Value('i', 0)
         self.current_min_index = Value('i', 2 ** 31 - 1)
         self.total_password = Value('i', 0)
         self.passwords_tried = Value('i', 0)
-        self.index_queue = None
-        self.batch_size = 1000
-        self.start_time = None
 
-    def turn_stop_flag(self, flag):
-        self.stop_flag = flag
+        self.index_queue: Optional[Queue] = None
+        self.start_time: Optional[float] = None
 
-    def validate_settings(self):
+    def validate_settings(self) -> None:
+        """Validate cracker settings before starting the attack."""
         try:
             if not self.settings.get("zip_path") or not os.path.exists(self.settings["zip_path"]):
                 raise ValueError("Invalid ZIP file path.")
-            if not 1 <= self.settings.get("number_workers") <= os.cpu_count() - 2:
-                raise ValueError("Invalid number of CPU cores.")
+
+            cpu_count = os.cpu_count() or 4  # Default to 4 if CPU count cannot be determined
+            if not 1 <= self.settings.get("number_workers", 0) <= cpu_count - 2:
+                raise ValueError(f"Worker count must be between 1 and {cpu_count - 2}")
+
             if self.settings["mode"] == "Brute Force":
                 if not self.settings.get("charset"):
-                    raise ValueError("Character set (charset) is required for brute force.")
-                if not self.settings.get("max_length") > 0:
-                    raise ValueError("Maximum length for brute force must be greater than 0.")
+                    raise ValueError("Character set required for brute force attack")
+                if not self.settings.get("max_length", 0) > 0:
+                    raise ValueError("Maximum length must be greater than 0")
+
             elif self.settings["mode"] == "Dictionary Attack":
                 if not self.settings.get("wordlist_path") or not os.path.exists(self.settings["wordlist_path"]):
-                    raise ValueError("Valid wordlist file path is required for dictionary attack.")
+                    raise ValueError("Valid wordlist file path required")
+
         except ValueError as e:
-            messagebox.showerror("Error", str(e))
+            messagebox.showerror("Validation Error", str(e))
+            raise
 
     @staticmethod
-    def find_smallest_file(zip_path):
-        with pyzipper.AESZipFile(zip_path, 'r') as zf:
-            min_size = float('inf')
-            smallest_file = None
-            has_file = False
-
-            for file_info in zf.infolist():
-                if file_info.is_dir():
-                    continue
-                has_file = True
-                if file_info.file_size < min_size:
-                    min_size = file_info.file_size
-                    smallest_file = file_info.filename
-
-        return smallest_file, has_file
-
-    def cracker(self, zf, charset, length, index, encoded_chars):
+    def find_smallest_file(zip_path: str) -> Tuple[Optional[str], bool]:
+        """Find the smallest file in ZIP for efficient password testing."""
         try:
-            password_chars = [''] * length
-            base = len(charset)
+            with pyzipper.AESZipFile(zip_path, 'r') as zf:
+                files = [(f.filename, f.file_size) for f in zf.infolist() if not f.is_dir()]
+                if not files:
+                    return None, False
+                smallest_file = min(files, key=lambda x: x[1])[0]
+                return smallest_file, True
+        except Exception as e:
+            raise ValueError(f"Error accessing ZIP file: {e}")
 
-            for i in range(length - 1, -1, -1):
-                password_chars[i] = encoded_chars[index % base]
-                index //= base
-
-            password = b''.join(password_chars)
-
+    @staticmethod
+    def try_password(zf: pyzipper.AESZipFile, password: bytes,
+                     smallest_file: str) -> bool:
+        """Test a single password against the ZIP file."""
+        try:
             zf.setpassword(password)
             if zf.testzip() is None:
-                zf.extract(self.smallest_file)
-                return password.decode('utf-8')
-        except (pyzipper.BadZipFile, RuntimeError, Exception):
-            return None
+                zf.extract(smallest_file)
+                return True
+            return False
+        except (pyzipper.BadZipFile, RuntimeError):
+            return False
+        except Exception as e:
+            print(f"Unexpected error testing password: {e}")
+            return False
 
-    def index_producer(self, total_combinations, pause_flag):
+    def brute_force(self, settings: Dict[str, Any]) -> None:
+        """Execute brute force attack on ZIP file."""
         try:
-            p = psutil.Process()
-            p.cpu_affinity([self.settings["number_workers"]])
+            self.settings = settings
+            self.validate_settings()
+            self.start_time = time.time()
+
+            charset = self.settings["charset"]
+            self.stop_flag.value = 0
+
+            if "passwords_tried" in self.settings:
+                self.passwords_tried.value = self.settings["passwords_tried"]
+
+            # Initialize ZIP file handling
+            self.smallest_file, has_file = self.find_smallest_file(self.settings["zip_path"])
+            if not has_file:
+                messagebox.showerror("Error", "ZIP file contains no files")
+                return
+
+            # Calculate total possible passwords
+            total = sum(len(charset) ** length
+                        for length in range(self.settings["current_length"],
+                                            self.settings["max_length"] + 1))
+            self.total_password.value = total
+
+            with Manager() as manager:
+                found_password = manager.Value('s', '')
+                self._execute_brute_force_attack(charset, found_password, manager)
+
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
+    def _execute_brute_force_attack(self, charset: str, found_password: Value,
+                                    manager: Manager) -> None:
+        """Execute the main brute force attack logic."""
+        for password_length in range(self.settings["current_length"],
+                                     self.settings["max_length"] + 1):
+            if self.stop_flag.value:
+                break
+
+            self.settings["current_length"] = password_length
+            total_combinations = len(charset) ** password_length
+
+            self.index_queue = manager.Queue(maxsize=self.QUEUE_MAX_SIZE)
+
+            if not self._run_attack_processes(total_combinations, found_password):
+                return
+
+            self.settings["current_index"] = 0
+
+        self._show_results(found_password.value)
+
+    def _producer_process(self, total_combinations: int, pause_flag: Value) -> None:
+        """
+        Process that produces indices for password generation.
+
+        Args:
+            total_combinations: Total number of possible combinations
+            pause_flag: Shared flag for pausing the process
+        """
+        try:
+            # Set CPU affinity for better performance
+            process = psutil.Process()
+            process.cpu_affinity([self.settings["number_workers"]])
 
             current_index = self.settings["current_index"]
+
+            # Generate batches of indices until all combinations are covered
             while current_index < total_combinations and not self.stop_flag.value:
                 if pause_flag.value:
                     time.sleep(0.1)
                     continue
 
-                batch_end = min(current_index + self.batch_size, total_combinations)
+                # Calculate batch size and create batch
+                batch_end = min(current_index + self.BATCH_SIZE, total_combinations)
                 batch = list(range(current_index, batch_end))
-                self.index_queue.put(batch)
+
+                try:
+                    self.index_queue.put(batch)
+                except queue.Full:
+                    time.sleep(0.1)
+                    continue
+
                 current_index = batch_end
 
+            # Signal workers to stop by sending None
             for _ in range(self.settings["number_workers"]):
                 self.index_queue.put(None)
 
         except Exception as e:
-            print(f"Error in producer: {e}")
+            print(f"Error in producer process: {e}")
+            # Ensure workers are properly signaled to stop on error
             for _ in range(self.settings["number_workers"]):
-                self.index_queue.put(None)
+                try:
+                    self.index_queue.put(None)
+                except:
+                    pass
 
-    def bf_worker(self, id_process, current_min_index, start_time, zip_path, pause_flag):
+    def _worker_process(self, worker_id: int, current_min_index: Value,
+                        zip_path: str, pause_flag: Value, found_password: Value) -> None:
+        """
+        Worker process that tests password combinations.
+
+        Args:
+            worker_id: ID of the worker process
+            current_min_index: Shared value for tracking minimum index
+            zip_path: Path to the ZIP file
+            pause_flag: Shared flag for pausing the process
+            found_password: Shared value for storing found password
+        """
         try:
+            # Set CPU affinity for better performance
+            process = psutil.Process()
+            process.cpu_affinity([worker_id % self.settings["number_workers"]])
+
+            # Pre-encode charset for better performance
             charset = self.settings["charset"]
             encoded_chars = [c.encode('utf-8') for c in charset]
-
-            p = psutil.Process()
-            p.cpu_affinity([id_process % self.settings["number_workers"]])
 
             with pyzipper.AESZipFile(zip_path, 'r') as zf:
                 while not self.stop_flag.value:
                     try:
+                        # Get batch of indices to process
                         batch = self.index_queue.get(timeout=1)
                         if batch is None:
                             break
 
+                        # Process each index in the batch
                         for index in batch:
                             if self.stop_flag.value:
                                 break
 
+                            # Handle pause flag
                             if pause_flag.value:
                                 with current_min_index.get_lock():
-                                    current_min_index.value = min(current_min_index.value, index)
+                                    current_min_index.value = min(
+                                        current_min_index.value,
+                                        index
+                                    )
                                 while pause_flag.value and not self.stop_flag.value:
                                     time.sleep(0.1)
                                 continue
 
-                            result = self.cracker(zf, charset, self.settings["current_length"],
-                                                index, encoded_chars)
-                            if result:
-                                self.passwords_tried.value = self.total_password.value
-                                self.stop_flag.value = 1
-                                messagebox.showinfo(
-                                    "Success",
-                                    f"Password: {result}, cracking time: {time.time() - start_time:.2f} seconds")
-                                self.progress_manager.delete_progress()
-                                return
+                            # Generate and test password
+                            password_chars = [''] * self.settings["current_length"]
+                            current_index = index
+                            base = len(charset)
 
+                            # Generate password from index
+                            for i in range(self.settings["current_length"] - 1, -1, -1):
+                                password_chars[i] = encoded_chars[current_index % base]
+                                current_index //= base
+
+                            # Join password chars and test
+                            password = b''.join(password_chars)
+
+                            try:
+                                zf.setpassword(password)
+                                if zf.testzip() is None:
+                                    # Password found
+                                    zf.extract(self.smallest_file)
+                                    self.stop_flag.value = 1
+                                    found_password.value = password
+                                    return
+                            except (pyzipper.BadZipFile, RuntimeError):
+                                continue
+
+                        # Update progress
                         with self.passwords_tried.get_lock():
                             self.passwords_tried.value += len(batch)
 
@@ -144,238 +270,217 @@ class Cracker:
                         continue
 
         except Exception as e:
-            print(f"Error in worker {id_process}: {e}")
+            print(f"Error in worker {worker_id}: {e}")
 
-    def brute_force(self, settings):
-        self.settings = settings
-        self.validate_settings()
-        self.start_time = time.time()
-        charset = self.settings["charset"]
-
-        with self.stop_flag.get_lock():
-            self.stop_flag.value = 0
-
-        if "passwords_tried" in self.settings:
-            with self.passwords_tried.get_lock():
-                self.passwords_tried.value = self.settings["passwords_tried"]
-
-        self.smallest_file, has_file = self.find_smallest_file(self.settings["zip_path"])
-        if not has_file:
-            messagebox.showerror("Error", "ZIP file contains no files, only directories")
-            return
-
-        total = 0
-        for length in range(self.settings["current_length"], self.settings["max_length"] + 1):
-            total += len(charset) ** length
-        with self.total_password.get_lock():
-            self.total_password.value = total
-
-        with Manager() as manager:
-            for password_length in range(self.settings["current_length"], self.settings["max_length"] + 1):
-                self.settings["current_length"] = password_length
-                total_combinations = len(charset) ** password_length
-
-                self.index_queue = manager.Queue(maxsize=30000)
-
-                producer = Process(
-                    target=self.index_producer,
-                    args=(total_combinations, self.pause_flag)
-                )
-                producer.daemon = True
-                producer.start()
-
-                workers = []
-                for id_process in range(self.settings["number_workers"]):
-                    worker = Process(
-                        target=self.bf_worker,
-                        args=(
-                            id_process,
-                            self.current_min_index,
-                            self.start_time,
-                            self.settings["zip_path"],
-                            self.pause_flag
-                        )
-                    )
-                    worker.daemon = True
-                    workers.append(worker)
-                    worker.start()
-
-                producer.join()
-                for worker in workers:
-                    worker.join()
-
-                self.settings["current_index"] = 0
-
-                if self.pause_flag.value:
-                    self.progress_manager.save_progress(self.current_min_index.value, self.passwords_tried.value)
-                    return
-        if self.stop_flag.value == 0:
-            messagebox.showinfo(
-                "Unsuccessful",
-                f"Password not found, cracking time: {time.time() - self.start_time:.2f} seconds")
-        self.progress_manager.delete_progress()
-
-    def dictionary_attack(self, settings):
-        self.settings = settings
-        self.validate_settings()
-        self.start_time = time.time()
-
-        with self.stop_flag.get_lock():
-            self.stop_flag.value = 0
-
-        wordlist_path = self.settings["wordlist_path"]
-        zip_path = self.settings["zip_path"]
-        number_workers = self.settings["number_workers"]
-
-        if "passwords_tried" in self.settings:
-            with self.passwords_tried.get_lock():
-                self.passwords_tried.value = self.settings["passwords_tried"]
-
-        with open(wordlist_path, 'rb') as f:
-            self.total_password.value = sum(chunk.count(b'\n') for chunk in iter(lambda: f.read(8192), b''))
-
-        self.smallest_file, has_file = self.find_smallest_file(zip_path)
-        if not has_file:
-            print("Error: ZIP file contains no files, only directories.")
-            return
-
+    def _run_attack_processes(self, total_combinations: int,
+                              found_password: Value) -> bool:
+        """Start and manage the producer and worker processes."""
         try:
-            with Manager() as manager:
-                password_queue = manager.Queue(maxsize=30000)
-                found_password = manager.Value('s', '')
-                processes = []
+            producer = Process(
+                target=self._producer_process,
+                args=(total_combinations, self.pause_flag)
+            )
+            producer.daemon = True
+            producer.start()
 
-                producer = Process(
-                    target=self.password_producer,
-                    args=(wordlist_path, password_queue, self.stop_flag, number_workers)
-                )
-                producer.daemon = True
-                producer.start()
-
-                for process_id in range(number_workers):
-                    consumer = Process(
-                        target=self.password_consumer,
-                        args=(
-                            zip_path,
-                            password_queue,
-                            self.stop_flag,
-                            found_password,
-                            self.smallest_file,
-                            process_id,
-                            number_workers,
-                            self.passwords_tried,
-                            self.pause_flag
-                        )
+            workers = []
+            for worker_id in range(self.settings["number_workers"]):
+                worker = Process(
+                    target=self._worker_process,
+                    args=(
+                        worker_id,
+                        self.current_min_index,
+                        self.settings["zip_path"],
+                        self.pause_flag,
+                        found_password
                     )
-                    consumer.daemon = True
-                    processes.append(consumer)
-                    consumer.start()
+                )
+                worker.daemon = True
+                workers.append(worker)
+                worker.start()
 
-                producer.join()
-                for process in processes:
-                    process.join()
+            producer.join()
+            for worker in workers:
+                worker.join()
 
-                if self.stop_flag.value:
-                    self.passwords_tried.value = self.total_password.value
-                    messagebox.showinfo(
-                        "Success",
-                        f"Password: {found_password.value}, cracking time: {time.time() - self.start_time:.2f} seconds")
-                    self.progress_manager.delete_progress()
-                else:
-                    messagebox.showinfo(
-                        "Unsuccessful",
-                        f"Password not found, cracking time: {time.time() - self.start_time:.2f} seconds")
-                    self.progress_manager.delete_progress()
+            if self.pause_flag.value:
+                self.progress_manager.save_progress(
+                    self.current_min_index.value,
+                    self.passwords_tried.value
+                )
+                return False
+
+            return True
 
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Error in attack processes: {e}")
+            return False
 
-
-    def password_producer(self, wordlist_path: str, password_queue: Queue,
-                          stop_flag: Value, num_consumers: int):
-        p = psutil.Process()
-        p.cpu_affinity([num_consumers])
-
+    def dictionary_attack(self, settings: Dict[str, Any]) -> None:
+        """Execute dictionary attack on ZIP file."""
         try:
-            batch = []
-            batch_size_lines = 0
+            self.settings = settings
+            self.validate_settings()
+            self.start_time = time.time()
+            self.stop_flag.value = 0
 
-            with open(wordlist_path, 'r', encoding='utf-8') as file:
-                # Skip lines until start_line
+            if "passwords_tried" in self.settings:
+                self.passwords_tried.value = self.settings["passwords_tried"]
+
+            # Count total passwords in wordlist
+            with open(self.settings["wordlist_path"], 'rb') as f:
+                self.total_password.value = sum(
+                    chunk.count(b'\n')
+                    for chunk in iter(lambda: f.read(8192), b'')
+                )
+
+            # Validate ZIP file
+            self.smallest_file, has_file = self.find_smallest_file(
+                self.settings["zip_path"]
+            )
+            if not has_file:
+                raise ValueError("ZIP file contains no files")
+
+            with Manager() as manager:
+                password_queue = manager.Queue(maxsize=self.QUEUE_MAX_SIZE)
+                found_password = manager.Value('s', '')
+
+                self._execute_dictionary_attack(
+                    password_queue,
+                    found_password
+                )
+
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
+    def _execute_dictionary_attack(self, password_queue: Queue,
+                                   found_password: Value):
+        """Execute the main dictionary attack logic."""
+        try:
+            producer = Process(
+                target=self._dict_producer_process,
+                args=(password_queue,)
+            )
+            producer.daemon = True
+            producer.start()
+
+            consumers = []
+            for process_id in range(self.settings["number_workers"]):
+                consumer = Process(
+                    target=self._dict_consumer_process,
+                    args=(
+                        process_id,
+                        password_queue,
+                        found_password
+                    )
+                )
+                consumer.daemon = True
+                consumers.append(consumer)
+                consumer.start()
+
+            producer.join()
+            for consumer in consumers:
+                consumer.join()
+
+            self._show_results(found_password.value)
+
+        except Exception as e:
+            print(f"Error in dictionary attack: {e}")
+
+    def _dict_producer_process(self, password_queue: Queue) -> None:
+        """Process that produces passwords from wordlist."""
+        try:
+            process = psutil.Process()
+            process.cpu_affinity([self.settings["number_workers"]])
+
+            batch: List[str] = []
+            batch_size = 0
+
+            with open(self.settings["wordlist_path"], 'r',
+                      encoding='utf-8', errors='ignore') as file:
+                # Skip previously tried passwords
                 for _ in range(self.passwords_tried.value):
                     next(file)
 
-            with open(wordlist_path, 'r', encoding='utf-8') as file:
                 for line in file:
-                    if stop_flag.value:
+                    if self.stop_flag.value:
                         break
 
                     password = line.strip()
-                    if not password:
-                        continue
+                    if password:
+                        batch.append(password)
+                        batch_size += 1
 
-                    batch.append(password)
-                    batch_size_lines += 1
-
-                    if batch_size_lines >= self.batch_size:
-                        password_queue.put((batch, batch_size_lines))
-                        batch = []
-                        batch_size_lines = 0
+                        if batch_size >= self.BATCH_SIZE:
+                            password_queue.put((batch, batch_size))
+                            batch = []
+                            batch_size = 0
 
                 if batch:
-                    password_queue.put((batch, batch_size_lines))
-
-                for _ in range(num_consumers):
-                    password_queue.put(None)
+                    password_queue.put((batch, batch_size))
 
         except Exception as e:
-            print(f"Error in producer: {e}")
+            print(f"Error in dictionary producer: {e}")
         finally:
-            for _ in range(num_consumers):
+            # Signal consumers to stop
+            for _ in range(self.settings["number_workers"]):
                 password_queue.put(None)
 
-    @staticmethod
-    def password_consumer(zip_path: str, password_queue: Queue, stop_flag: Value,
-                          found_password: Value, smallest_file: str,
-                          process_id: int, num_workers: int,
-                          passwords_tried: Value, pause_flag: Value):
+    def _dict_consumer_process(self, process_id: int, password_queue: Queue,
+                               found_password: Value) -> None:
+        """Process that tests passwords from the queue."""
         try:
-            p = psutil.Process()
-            p.cpu_affinity([process_id % num_workers])
+            process = psutil.Process()
+            process.cpu_affinity([process_id % self.settings["number_workers"]])
 
-            with pyzipper.AESZipFile(zip_path, 'r') as zf:
-                while True:
+            with pyzipper.AESZipFile(self.settings["zip_path"], 'r') as zf:
+                while not self.stop_flag.value:
                     try:
                         batch_data = password_queue.get(timeout=1)
-                    except queue.Empty:
-                        continue
+                        if batch_data is None:
+                            break
 
-                    if batch_data is None:
-                        return
+                        passwords, batch_size = batch_data
+                        for password in passwords:
+                            if self.stop_flag.value:
+                                return
 
-                    batch, batch_size_lines = batch_data
+                            if self.pause_flag.value:
+                                while self.pause_flag.value and not self.stop_flag.value:
+                                    time.sleep(0.1)
+                                continue
 
-                    for password in batch:
-                        if stop_flag.value:
-                            return
-
-                        while pause_flag.value and not stop_flag.value:
-                            time.sleep(0.1)
-
-                        try:
-                            encoded_password = password.encode('utf-8')
-                            zf.setpassword(encoded_password)
-
-                            if zf.testzip() is None:
-                                zf.extract(smallest_file)
-                                stop_flag.value = 1
+                            if self.try_password(zf, password.encode('utf-8'),
+                                                 self.smallest_file):
+                                self.stop_flag.value = 1
                                 found_password.value = password
                                 return
 
-                        except (RuntimeError, pyzipper.BadZipFile, Exception):
-                            continue
-                    with passwords_tried.get_lock():
-                        passwords_tried.value += batch_size_lines
+                        with self.passwords_tried.get_lock():
+                            self.passwords_tried.value += batch_size
+
+                    except queue.Empty:
+                        continue
 
         except Exception as e:
-            messagebox.showerror("Error", f"Error in consumer {process_id}: {e}")
+            print(f"Error in dictionary consumer {process_id}: {e}")
+
+    def _show_results(self, password: str) -> None:
+        """Display the results of the cracking attempt."""
+        elapsed_time = time.time() - self.start_time
+
+        if password:
+            self.passwords_tried.value = self.total_password.value
+            messagebox.showinfo(
+                "Success",
+                f"Password found: {password}\n"
+                f"Time taken: {elapsed_time:.2f} seconds"
+            )
+        else:
+            messagebox.showinfo(
+                "Unsuccessful",
+                f"Password not found\n"
+                f"Time taken: {elapsed_time:.2f} seconds"
+            )
+
+        self.progress_manager.delete_progress()
