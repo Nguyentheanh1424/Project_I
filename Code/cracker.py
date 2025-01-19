@@ -48,10 +48,6 @@ class Cracker:
             if not self.settings.get("zip_path") or not os.path.exists(self.settings["zip_path"]):
                 raise ValueError("Invalid ZIP file path.")
 
-            cpu_count = os.cpu_count() or 4  # Default to 4 if CPU count cannot be determined
-            if not 1 <= self.settings.get("number_workers", 0) <= cpu_count - 2:
-                raise ValueError(f"Worker count must be between 1 and {cpu_count - 2}")
-
             if self.settings["mode"] == "Brute Force":
                 if not self.settings.get("charset"):
                     raise ValueError("Character set required for brute force attack")
@@ -156,9 +152,10 @@ class Cracker:
             pause_flag: Shared flag for pausing the process
         """
         try:
-            # Set CPU affinity for better performance
-            process = psutil.Process()
-            process.cpu_affinity([self.settings["number_workers"] + 1])
+            if self.settings["number_workers"] != 1:
+                # Set CPU affinity for better performance
+                process = psutil.Process()
+                process.cpu_affinity([self.settings["number_workers"]])
 
             current_index = self.settings["current_index"]
 
@@ -206,9 +203,11 @@ class Cracker:
             found_password: Shared value for storing found password
         """
         try:
-            # Set CPU affinity for better performance
-            process = psutil.Process()
-            process.cpu_affinity([worker_id % self.settings["number_workers"]])
+            if self.settings["number_workers"] != 1:
+                # Set CPU affinity for better performance
+                process = psutil.Process()
+                process.cpu_affinity([worker_id % self.settings["number_workers"]])
+
 
             # Pre-encode charset for better performance
             charset = self.settings["charset"]
@@ -390,8 +389,9 @@ class Cracker:
     def _dict_producer_process(self, password_queue: Queue) -> None:
         """Process that produces passwords from wordlist."""
         try:
-            process = psutil.Process()
-            process.cpu_affinity([self.settings["number_workers"] + 1])
+            if self.settings["number_workers"] != 1:
+                process = psutil.Process()
+                process.cpu_affinity([self.settings["number_workers"]])
 
             batch: List[str] = []
             batch_size = 0
@@ -430,8 +430,9 @@ class Cracker:
                                found_password: Value) -> None:
         """Process that tests passwords from the queue."""
         try:
-            process = psutil.Process()
-            process.cpu_affinity([process_id % self.settings["number_workers"]])
+            if self.settings["number_workers"] != 1:
+                process = psutil.Process()
+                process.cpu_affinity([process_id % self.settings["number_workers"]])
 
             with pyzipper.AESZipFile(self.settings["zip_path"], 'r') as zf:
                 while not self.stop_flag.value:

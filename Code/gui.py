@@ -108,7 +108,7 @@ class GUI:
         process_frame = ttk.LabelFrame(self.main_frame, text="Process Settings", padding="10")
         process_frame.grid(row=3, column=0, columnspan=3, sticky="ew", pady=(0, 10))
 
-        ttk.Label(process_frame, text=f"Number of Workers (1-{os.cpu_count() - 2}):").grid(row=0, column=0, sticky="w")
+        ttk.Label(process_frame, text=f"Number of Workers ({os.cpu_count()}):").grid(row=0, column=0, sticky="w")
         self.workers_entry = ttk.Entry(process_frame, width=10, justify="center")
         self.workers_entry.grid(row=0, column=1, sticky="w", padx=5)
         self.workers_entry.insert(0, "4")
@@ -322,7 +322,7 @@ class GUI:
         # Validate workers
         try:
             workers = int(self.workers_entry.get().strip())
-            if workers < 1 or workers > os.cpu_count() - 2:
+            if workers < 1 or workers > os.cpu_count():
                 raise ValueError
         except ValueError:
             self.status_label.config(
