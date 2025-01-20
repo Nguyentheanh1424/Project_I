@@ -53,7 +53,6 @@ class Cracker:
                     raise ValueError("Character set required for brute force attack")
                 if not self.settings.get("max_length", 0) > 0:
                     raise ValueError("Maximum length must be greater than 0")
-
             elif self.settings["mode"] == "Dictionary Attack":
                 if not self.settings.get("wordlist_path") or not os.path.exists(self.settings["wordlist_path"]):
                     raise ValueError("Valid wordlist file path required")

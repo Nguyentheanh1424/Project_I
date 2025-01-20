@@ -319,17 +319,17 @@ class GUI:
             self.status_label.config(text="Error: Please select a ZIP file", foreground="red")
             return False
 
-        # Validate workers
-        try:
-            workers = int(self.workers_entry.get().strip())
-            if workers < 1 or workers > os.cpu_count():
-                raise ValueError
-        except ValueError:
-            self.status_label.config(
-                text=f"Error: Workers must be between 1 and {os.cpu_count() - 2}",
-                foreground="red"
-            )
-            return False
+        # # Validate workers
+        # try:
+        #     workers = int(self.workers_entry.get().strip())
+        #     if workers < 1 or workers > os.cpu_count():
+        #         raise ValueError
+        # except ValueError:
+        #     self.status_label.config(
+        #         text=f"Error: Workers must be between 1 and {os.cpu_count() - 2}",
+        #         foreground="red"
+        #     )
+        #     return False
 
         if self.mode_var.get() == "Brute Force":
             # Validate max length
