@@ -152,10 +152,8 @@ class Cracker:
             pause_flag: Shared flag for pausing the process
         """
         try:
-            if self.settings["number_workers"] != 1:
-                # Set CPU affinity for better performance
-                process = psutil.Process()
-                process.cpu_affinity([self.settings["number_workers"]])
+            process = psutil.Process()
+            process.cpu_affinity([self.settings["number_workers"]])
 
             current_index = self.settings["current_index"]
 
@@ -203,10 +201,8 @@ class Cracker:
             found_password: Shared value for storing found password
         """
         try:
-            if self.settings["number_workers"] != 1:
-                # Set CPU affinity for better performance
-                process = psutil.Process()
-                process.cpu_affinity([worker_id % self.settings["number_workers"]])
+            process = psutil.Process()
+            process.cpu_affinity([worker_id % self.settings["number_workers"]])
 
 
             # Pre-encode charset for better performance
@@ -389,9 +385,8 @@ class Cracker:
     def _dict_producer_process(self, password_queue: Queue) -> None:
         """Process that produces passwords from wordlist."""
         try:
-            if self.settings["number_workers"] != 1:
-                process = psutil.Process()
-                process.cpu_affinity([self.settings["number_workers"]])
+            process = psutil.Process()
+            process.cpu_affinity([self.settings["number_workers"]])
 
             batch: List[str] = []
             batch_size = 0
@@ -430,9 +425,8 @@ class Cracker:
                                found_password: Value) -> None:
         """Process that tests passwords from the queue."""
         try:
-            if self.settings["number_workers"] != 1:
-                process = psutil.Process()
-                process.cpu_affinity([process_id % self.settings["number_workers"]])
+            process = psutil.Process()
+            process.cpu_affinity([process_id % self.settings["number_workers"]])
 
             with pyzipper.AESZipFile(self.settings["zip_path"], 'r') as zf:
                 while not self.stop_flag.value:
